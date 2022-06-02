@@ -535,9 +535,7 @@ pre {
 
 code {
   background-color: #F8F8F8;
-  border: 1px solid #E6E6E6;
-  border-radius: 4px;
-  padding: 2px 5px 0 5px; }
+  border-radius: 4px; }
 
 blockquote {
   border-left: 3px solid rgba(0, 0, 0, 0.8);
