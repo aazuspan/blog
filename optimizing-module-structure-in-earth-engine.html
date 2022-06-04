@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Optimizing Module Structure in Earth Engine</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/theme/css/main.css" />
+</head>
+<body>
+
+    <div class="navigation pure-menu pure-menu-horizontal">
+        <a href="/" class="pure-menu-heading  pure-menu-link">Aaron Zuspan</a>
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item"></li>
+
+            <li class="pure-menu-item"><a href="/pages/about.html" class="pure-menu-link">About</a></li>
+            <li class="pure-menu-item pure-menu-selected"><a href="/category/earth-engine.html" class="pure-menu-link">Earth Engine</a></li>
+        </ul>
+    </div>
+
+
+<div class="page-container">
+    <div class="entry-content">
+        <div class="post-meta pure-g">
+<div class="pure-u-3-4 meta-data">
+    <a href="/category/earth-engine.html" class="category">Earth Engine</a><br />
+
+    <a class="author" href="/author/aaron-zuspan.html">Aaron Zuspan</a>
+    &mdash; <abbr title="2022-06-04T00:00:03.235602-07:00">2022.06.04</abbr>
+</div>        </div>
+    </div>
+
+    <div class="article-header-container">
+        <div class="background-image-container">
+
+            <div class="background-image-small">
+                <div class="title-container">
+                    <h1>Optimizing Module Structure in Earth&nbsp;Engine</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="entry-content">
+        <p>In a <a href="https://aazuspan.github.io/should-you-minify-your-earth-engine-modules.html">recent blog post</a>, I found that shrinking an Earth Engine module&#8217;s size by 75% had almost no effect on import speed in the Code Editor because most of the time was spent waiting for Earth Engine to access the module, not downloading its contents. That made me wonder, if each file requires some overhead time to import, can you speed up module imports by simplifying a module&#8217;s file&nbsp;structure?</p>
+<h2>Module&nbsp;Design</h2>
+<p>When I&#8217;m building an Earth Engine module, I typically create one root file that imports from submodules. This allows for clean organization of code while only requiring users to make a single import. For example, I might have a file called <code>tools</code> with the following&nbsp;contents:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">exports</span><span class="p">.</span><span class="nx">ui</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;users/aazuspan/repo:src/ui.js&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;users/aazuspan/repo:src/image.js&quot;</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+<p>The <code>ui</code> and <code>image</code> submodules would contain their own exported functions. A user could then import <code>tools</code> and access both submodules, like&nbsp;so:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;users/aazuspan/repo:tools&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="nx">tools</span><span class="p">.</span><span class="nx">image</span><span class="p">.</span><span class="nx">maskClouds</span><span class="p">(...)</span><span class="w"></span>
+<span class="nx">tools</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">legend</span><span class="p">(...)</span><span class="w"></span>
+</code></pre></div>
+
+<p>But when a user imports <code>tools</code>, three separate files must be requested from Earth Engine. If requests are made synchronously and each one has at least half a second of overhead, then nested modules like this may be inherently slow to import compared to just a single file containing all of the source code. To test whether I&#8217;ve been building unintentionally slow modules, I set up a variety of module designs to see how file structure affects import&nbsp;times.</p>
+<h2>The&nbsp;Test</h2>
+<p>In my <a href="https://aazuspan.github.io/should-you-minify-your-earth-engine-modules.html">previous experiment</a> with module import times, I used Python to automate and time the imports. For this experiment, I stuck to the browser, tracking request times with the developer tools. My thought was that the Code Editor may have a strategy for optimizing imports, perhaps allowing it to speed up repeated requests to nearby modules or perform requests asynchronously. The lack of automation would make it harder to run repeated tests, but would ensure results were representative of actual import times experienced by other&nbsp;users.</p>
+<p>I set up three different modules, each organized with a different layout, to compare the effect of different module structures on import times. To eliminate download time as a confounding variable, each module contained one function and exactly the same amount of data (395&nbsp;bytes).</p>
+<h3>1. Chained&nbsp;Structure</h3>
+<p>The first module I tested contained one root module with five submodules, arranged depthwise. The root module required the first submodule, which required the second submodule, which required the third, etc. Starting at the root module, imports would work their way down each link in the chain until the last submodule was finally returned. Because each submodule would need to be retrieved before the next module could be requested, I suspected this chained design would be the slowest to&nbsp;import.</p>
+<p><center><img src="./assets/nested_deep.svg" alt="A diagram showing 6 modules connected in a row"></img></center></p>
+<h3>2. Branched&nbsp;Structure</h3>
+<p>The second module also contained one root module with five submodules. However, unlike the chained module, the imports for each submodule in the branched structure were declared in the root module (the design I described at the beginning of this post). Because all of the required submodule paths could be known as soon as the root module was received and parsed, this is where I suspected Earth Engine might optimize import times by requesting multiple submodules asynchronously. At least, that was my&nbsp;hope.</p>
+<p><center><img src="./assets/nested_wide.svg" alt="A diagram showing one module branching out to 5 submodules"></img></center></p>
+<h3>3. Monolithic&nbsp;Structure</h3>
+<p>If each instance of <code>require</code> adds some overhead to import time, the fastest import should be achieved with only a single file. I used this monolithic structure, with one root module containing the contents of all the submodules, for the third experimental&nbsp;structure.</p>
+<p><center><img src="./assets/nested_allinone.svg" alt="A diagram showing one big module."></img></center></p>
+<h2>The&nbsp;Results</h2>
+<h3>Chained is&nbsp;Slow</h3>
+<p>Watching network traffic when importing the root file of the chained module revealed that six synchronous requests were made. Because each submodule contained the path to the next, the final submodule could only be imported after the paths had been retrieved from the previous four. You can see the timeline of requests, happening one after the other,&nbsp;below.</p>
+<p><img alt="Browser developer tools showing 6 requests occuring one after the other" src="assets/nested_test_deep.png"></p>
+<p>Averaged over 10 runs, it took <strong>3.24 seconds</strong> to fully import the chained&nbsp;module.</p>
+<h3>Branched is&nbsp;Faster</h3>
+<p>In comparison, the network traffic below shows how the branched module structure allowed for asynchronous requests. As soon as the submodule paths were retrieved from the root module, the remaining requests could be made&nbsp;simultaneously.</p>
+<p><img alt="Browser developer tools showing 6 requests, with 5 occuring simultaneously after the first finishes" src="assets/nested_test_wide.png"></p>
+<p>On average, the branched module imported fully in <strong>1.30 seconds</strong>, almost 3 times faster than the chained&nbsp;module. </p>
+<h3>One is the Fastest&nbsp;Number</h3>
+<p>Unsurprisingly, the single-file monolithic module made only one request, which was resolved just as fast as any of the multiple requests made by the other&nbsp;structures.</p>
+<p><img alt="Browser developer tools showing a single request" src="assets/nested_test_allinone.png"></p>
+<p>The monolithic module took only <strong>0.573 seconds</strong> to import on average, about 18% and 44% of the time required by the chained and branched structures,&nbsp;respectively.</p>
+<iframe src="./assets/nested_module_imports.html" width=800 height=300 frameBorder="0"></iframe>
+
+<h2>Lessons&nbsp;Learned</h2>
+<p>Using what I learned above, I decided to take a look at the structure of my <a href="https://github.com/aazuspan/snazzy">snazzy</a> module that I created a few months ago. Here&#8217;s the module&nbsp;layout:</p>
+<p><center><img src="./assets/snazzy_structure.svg" alt="A diagram showing three modules connected in a row"></img></center></p>
+<p>In the interest of organization, I accidentally created a chained set of imports. The root <code>styles</code> must be imported first, which imports <code>styles.js</code>, which imports <code>tags.js</code>. A few tests revealed that the module takes <strong>2.03 seconds</strong> to&nbsp;import. </p>
+<p>I decided to simplify the structure to a single, monolithic module, moving all of the code into <code>styles.</code> The result was a <strong>72% reduction</strong> in import time, down to an average of only <strong>0.551 seconds</strong>.</p>
+<p><center><img src="./assets/nested_modules_brain.jpg" alt="A meme of a brain expanding. Alongside, the caption goes from 'Putting all your code in one file because its easy', to 'Splitting your code up into submodules', to 'Building a complex network of nested sub-modules', to 'Realizing thats slow and putting all your code back in one file.'"></img></center></p>
+<p>Do I plan to build all of my Earth Engine modules in a single file from now on? No. Being able to organize complex projects across multiple files dramatically improves maintainability, and that may be worth the cost in performance. However, I will pay closer attention to module structure, and avoid chained imports like I had in <code>snazzy</code> whenever&nbsp;possible. </p>
+<p>Of course, compromising performance for organization or vice-versa isn&#8217;t ideal, so maybe there&#8217;s a third option. Specifically, I&#8217;m thinking that there&#8217;s a need for a tool that could be set up to automatically merge nested submodules into a single root module. This step could be run through an automated Github workflow whenever new code is pushed, essentially compiling the project and pushing it to Earth Engine. That would allow for performant imports <em>and</em> clean, well-organized code. <a href="https://aazuspan.github.io/should-you-minify-your-earth-engine-modules.html">Minification</a> could even be run at the same time to speed up imports just a little bit&nbsp;more. </p>
+<p>But for the time being, I plan to just pay a little more attention to my module&nbsp;design.</p>
+<h2><span class="caps">TLDR</span></h2>
+<ul>
+<li>Each file import in Earth Engine takes times, independent of file&nbsp;size</li>
+<li>Chained imports (<code>A</code> requires <code>B</code> requires <code>C</code>) occur synchronously and are very&nbsp;slow</li>
+<li>Branched imports (<code>A</code> requires <code>B</code> and <code>C</code>) occur asynchronously and are&nbsp;faster</li>
+<li>Single file imports are the fastest possible, but make organization&nbsp;difficult</li>
+</ul>
+    </div>
+
+    <footer>
+        <div class="tags">
+            <a href="/tag/earth-engine.html">earth-engine</a>
+            <a href="/tag/modules.html">modules</a>
+            <a href="/tag/javascript.html">javascript</a>
+            <a href="/tag/code-editor.html">code-editor</a>
+        </div>
+        <div class="pure-g post-footer">
+            <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-g poster-info">
+                    <div class="pure-u-3-4">
+                        <h3 class="author-name"><a href="/author/aaron-zuspan.html">Aaron Zuspan</a></h3>
+                        <p class="author-description">
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+    </footer>
+
+
+</div>
+
+
+
+    <footer class="index-footer">
+
+        <a href="/" title="Aaron Zuspan">Aaron Zuspan</a>
+        <a href="/category/earth-engine.html">Earth Engine</a>
+
+    </footer>
+
+</body>
+</html>
