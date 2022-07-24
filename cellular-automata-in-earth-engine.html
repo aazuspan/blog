@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Cellular Automata in Earth Engine</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/theme/css/main.css" />
+</head>
+<body>
+
+    <div class="navigation pure-menu pure-menu-horizontal">
+        <a href="/" class="pure-menu-heading  pure-menu-link">Aaron Zuspan</a>
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item"></li>
+
+            <li class="pure-menu-item"><a href="/pages/about.html" class="pure-menu-link">About</a></li>
+            <li class="pure-menu-item pure-menu-selected"><a href="/category/earth-engine.html" class="pure-menu-link">Earth Engine</a></li>
+        </ul>
+    </div>
+
+
+<div class="page-container">
+    <div class="entry-content">
+        <div class="post-meta pure-g">
+<div class="pure-u-3-4 meta-data">
+    <a href="/category/earth-engine.html" class="category">Earth Engine</a><br />
+
+    <a class="author" href="/author/aaron-zuspan.html">Aaron Zuspan</a>
+    &mdash; <abbr title="2022-07-23T22:33:53.315166-07:00">2022.07.23</abbr>
+</div>        </div>
+    </div>
+
+    <div class="article-header-container">
+        <div class="background-image-container">
+
+            <div class="background-image-small">
+                <div class="title-container">
+                    <h1>Cellular Automata in Earth&nbsp;Engine</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="entry-content">
+        <p><center><img src="./assets/gol_5070.gif" alt="Conway's Game of Life in a weird circular projection"></img></center></p>
+<p>Cellular automata are a type of computer program that can create complex, emergent behavior by applying simple rules to determine the state of cells on a grid over time. The typical cellular automaton works something like&nbsp;this:</p>
+<ol>
+<li>Create a 2D array of cells and assign a random state (e.g. alive/dead) to each cell in the&nbsp;array.</li>
+<li>Determine the next state of each cell based on its current state, the states of the cells around it, and a fixed set of&nbsp;rules.</li>
+<li>Set each cell to its new state. Repeat steps 2 and&nbsp;3.</li>
+</ol>
+<p>A 2D array of cell states sounds a lot like a  classified image, so let&#8217;s see what it would take to implement a cellular automaton in Earth&nbsp;Engine.</p>
+<h2>Conway&#8217;s Game of&nbsp;Life</h2>
+<p>The most famous cellular automaton is <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway&#8217;s Game of Life</a>, which follows these three&nbsp;rules:</p>
+<ul>
+<li>Cells can be alive or&nbsp;dead.</li>
+<li>Live cells with two or three live neighbours survive. All others&nbsp;die.</li>
+<li>Dead cells with three live neighbours are &#8220;born&#8221; and become a live cell. The rest stay&nbsp;dead.</li>
+</ul>
+<p>Using the steps we defined above and this set of rules, let&#8217;s implement Game of Life in Earth&nbsp;Engine.</p>
+<h3>Step 1: Set The Initial&nbsp;State</h3>
+<p>The first thing we&#8217;ll need is an image representing our initial state with live and dead cells. Since we&#8217;re in Earth Engine, we <em>could</em> use real world data to set the initial state, but let&#8217;s make things simple and just use random&nbsp;noise.</p>
+<p>The <code>ee.Image.random</code> constructor creates an image with float values between 0 and 1. We need integer values of 0 (dead) and 1 (alive), so we&#8217;ll multiply by 2 and cast to <code>byte</code> to round those values to 0 or&nbsp;1.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Create the initial random state</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Image</span><span class="p">.</span><span class="nx">random</span><span class="p">().</span><span class="nx">multiply</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="kr">byte</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+
+<p>One quirk of implementing cellular automata in Earth Engine is that the dynamic, zoom-based reprojection makes it hard to get nice, visible cells. We&#8217;ll need to force a&nbsp;projection. </p>
+<p>The built-in map uses Web Mercator (<span class="caps">EPSG</span>:3857), so we&#8217;ll use that to get square pixels. The scale doesn&#8217;t matter, just as long as you zoom in to a reasonable&nbsp;level.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Choose a projection for the simulation</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">PROJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Projection</span><span class="p">(</span><span class="s2">&quot;EPSG:3857&quot;</span><span class="p">).</span><span class="nx">atScale</span><span class="p">(</span><span class="mf">100000</span><span class="p">);</span><span class="w"></span>
+<span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">PROJ</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<h3>Step 2: Determine the Next&nbsp;State</h3>
+<p>To decide the next state, each cell needs to know how many live and dead neighbours it has. We&#8217;ll use <code>reduceNeighborhood</code> to run a 3x3 kernel over each cell. Since live cells have a value of 1 and dead cells have a value of 0, summing the eight neighbouring cells will give us the number of live&nbsp;neighbours.</p>
+<p>Let&#8217;s define a kernel that equally weights the neighbours while ignoring the center center cell to avoid&nbsp;self-counting.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Create a kernel for counting each cell&#39;s neighbours</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">KERNEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Kernel</span><span class="p">.</span><span class="nx">fixed</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">weights</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+
+<p>Now we&#8217;ll apply <code>reduceNeighborhood</code> with that kernel and a sum&nbsp;reducer.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Count each cell&#39;s live neighbours by summing their values</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">neighbours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">reduceNeighborhood</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">kernel</span><span class="o">:</span><span class="w"> </span><span class="nx">KERNEL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">reducer</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Reducer</span><span class="p">.</span><span class="nx">sum</span><span class="p">()</span><span class="w">    </span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+
+<p>Finally, we&#8217;ll create a new image by comparing the current cell states and the neighbour counts to our ruleset we outlined&nbsp;earlier.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Assign some constants to make the rules more readable</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">DEAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">ALIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// Assume dead cells and check the rules that create living cells</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Image</span><span class="p">.</span><span class="nx">constant</span><span class="p">(</span><span class="nx">DEAD</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Living cells with 2 neighbours remain alive</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">and</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">ALIVE</span><span class="p">)),</span><span class="w"> </span><span class="nx">ALIVE</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// All cells with 3 neighbours remain or become alive</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">3</span><span class="p">),</span><span class="w"> </span><span class="nx">ALIVE</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Re-define the projection</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">PROJ</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<p>Combining those steps gives us the following function that takes a state image and returns the next&nbsp;state.</p>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * Apply Game of Life rules to create a new state from an existing one.</span>
+<span class="cm"> * </span>
+<span class="cm"> * @param {ee.Image} state The existing state to evolve from.</span>
+<span class="cm"> * @returns {ee.Image} The next state.</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">getNextState</span><span class="p">(</span><span class="nx">state</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">neighbours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">reduceNeighborhood</span><span class="p">({</span><span class="w"></span>
+<span class="w">        </span><span class="nx">kernel</span><span class="o">:</span><span class="w"> </span><span class="nx">KERNEL</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nx">reducer</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Reducer</span><span class="p">.</span><span class="nx">sum</span><span class="p">()</span><span class="w">    </span>
+<span class="w">    </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Assume dead cells and check the rules that create living cells</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Image</span><span class="p">.</span><span class="nx">constant</span><span class="p">(</span><span class="nx">DEAD</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Living cells with 2 neighbours remain alive</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">and</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">ALIVE</span><span class="p">)),</span><span class="w"> </span><span class="nx">ALIVE</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// All cells with 3 neighbours remain or become alive</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">3</span><span class="p">),</span><span class="w"> </span><span class="nx">ALIVE</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Re-define the projection</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">PROJ</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span>
+</code></pre></div>
+
+<h3>Step 3: Set the State and&nbsp;Repeat</h3>
+<p>We have all the code we need to run one step of the Game of Life, but things really only get interesting when you can see the game evolve over many generations. Let add a loop that repeats Step 2, storing an array of state images, and combining them into a collection for visualizing&nbsp;later.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Create an empty array to store all the states</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">&lt;</span><span class="mf">100</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Replace the current state with the new state</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getNextState</span><span class="p">(</span><span class="nx">state</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nx">states</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">state</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// Turn the array of state images into a collection</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">ImageCollection</span><span class="p">(</span><span class="nx">states</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<p>All that&#8217;s left now is to visualize how our states change over&nbsp;time.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Set up the GIF parameters. Make sure to create a `geometry` polygon that covers a large enough area to grab a reasonable number of pixels.</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">gifParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="nx">geometry</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">dimensions</span><span class="o">:</span><span class="w"> </span><span class="mf">500</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">framesPerSecond</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">crs</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;EPSG:3857&quot;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="c1">// Create the animated thumbnail</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">thumb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ui</span><span class="p">.</span><span class="nx">Thumbnail</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">image</span><span class="o">:</span><span class="w"> </span><span class="nx">col</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="nx">gifParams</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="c1">// Add the GIF to the map</span><span class="w"></span>
+<span class="nb">Map</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">thumb</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<h3>Putting it All&nbsp;Together</h3>
+<p>With a little bit of clean-up, here&#8217;s the final code for running Game of Life in Earth&nbsp;Engine:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">DEAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">ALIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">PROJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Projection</span><span class="p">(</span><span class="s2">&quot;EPSG:3857&quot;</span><span class="p">).</span><span class="nx">atScale</span><span class="p">(</span><span class="mf">100000</span><span class="p">);</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">KERNEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Kernel</span><span class="p">.</span><span class="nx">fixed</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">weights</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Apply Game of Life rules to create a new state from an existing one.</span>
+<span class="cm"> * </span>
+<span class="cm"> * @param {ee.Image} state The existing state to evolve from.</span>
+<span class="cm"> * @returns {ee.Image} The next state.</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">getNextState</span><span class="p">(</span><span class="nx">state</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">neighbours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">reduceNeighborhood</span><span class="p">({</span><span class="w"></span>
+<span class="w">        </span><span class="nx">kernel</span><span class="o">:</span><span class="w"> </span><span class="nx">KERNEL</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nx">reducer</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Reducer</span><span class="p">.</span><span class="nx">sum</span><span class="p">()</span><span class="w">    </span>
+<span class="w">    </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Assume dead cells and check the rules that create living cells</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Image</span><span class="p">.</span><span class="nx">constant</span><span class="p">(</span><span class="nx">DEAD</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Living cells with 2 neighbours remain alive</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="nx">and</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="nx">ALIVE</span><span class="p">)),</span><span class="w"> </span><span class="nx">ALIVE</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// All cells with 3 neighbours remain or become alive</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">3</span><span class="p">),</span><span class="w"> </span><span class="nx">ALIVE</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Re-define the projection</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">PROJ</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">next</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Run Conway&#39;s Game of Life for a defined number of time steps.</span>
+<span class="cm"> * </span>
+<span class="cm"> * @param {Number} steps The number of time steps to run.</span>
+<span class="cm"> * @returns {ee.ImageCollection} The states through time.</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">runGameOfLife</span><span class="p">(</span><span class="nx">steps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// Create the initial random state</span><span class="w"></span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Image</span><span class="p">.</span><span class="nx">random</span><span class="p">().</span><span class="nx">multiply</span><span class="p">(</span><span class="mf">2</span><span class="p">).</span><span class="kr">byte</span><span class="p">().</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">PROJ</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// Create an empty array to store all the states</span><span class="w"></span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">&lt;</span><span class="nx">steps</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// Replace the current state with the new state</span><span class="w"></span>
+<span class="w">      </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getNextState</span><span class="p">(</span><span class="nx">state</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="nx">states</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">state</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// Turn the array of state images into a collection</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">ImageCollection</span><span class="p">(</span><span class="nx">states</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// Run Game of Life to create an Image Collection of states</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">runGameOfLife</span><span class="p">(</span><span class="mf">100</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// Set up the GIF parameters. Make sure to create a `geometry` polygon that covers a large enough area to grab a reasonable number of pixels.</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">gifParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="nx">geometry</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">dimensions</span><span class="o">:</span><span class="w"> </span><span class="mf">500</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">framesPerSecond</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">crs</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;EPSG:3857&quot;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="c1">// Create the animated thumbnail</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">thumb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ui</span><span class="p">.</span><span class="nx">Thumbnail</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">image</span><span class="o">:</span><span class="w"> </span><span class="nx">states</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="nx">gifParams</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="c1">// Add the GIF to the map</span><span class="w"></span>
+<span class="nb">Map</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">thumb</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<p>You can load the script above <a href="https://code.earthengine.google.com/425e49a103fa3a3e2292b623797ea65f">here</a>. The output should look something like&nbsp;this:</p>
+<p><center><img src="./assets/gol.gif" alt="Conway's Game of Life"></img></center></p>
+<p>For fun, try playing around with the <code>region</code> and <code>crs</code> in the <code>gifParams</code>. The <span class="caps">GIF</span> at the top of this post was creating using <code>crs="EPSG:5070"</code> with a larger region. You can also experiment with using real-world data to initialize the cell&nbsp;states!</p>
+    </div>
+
+    <footer>
+        <div class="tags">
+            <a href="/tag/earth-engine.html">earth-engine</a>
+            <a href="/tag/cellular-automata.html">cellular-automata</a>
+            <a href="/tag/javascript.html">javascript</a>
+            <a href="/tag/game-of-life.html">game-of-life</a>
+        </div>
+        <div class="pure-g post-footer">
+            <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-g poster-info">
+                    <div class="pure-u-3-4">
+                        <h3 class="author-name"><a href="/author/aaron-zuspan.html">Aaron Zuspan</a></h3>
+                        <p class="author-description">
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+    </footer>
+
+
+</div>
+
+
+
+    <footer class="index-footer">
+
+        <a href="/" title="Aaron Zuspan">Aaron Zuspan</a>
+        <a href="/category/earth-engine.html">Earth Engine</a>
+
+    </footer>
+
+</body>
+</html>
