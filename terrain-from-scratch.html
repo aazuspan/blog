@@ -30,7 +30,7 @@
     <a href="/category/algorithms.html" class="category">Algorithms</a><br />
 
     <a class="author" href="/author/aaron-zuspan.html">Aaron Zuspan</a>
-    &mdash; <abbr title="2022-08-06T13:06:24.808125-07:00">2022.08.06</abbr>
+    &mdash; <abbr title="2022-08-06T13:12:07.476292-07:00">2022.08.06</abbr>
 </div>        </div>
     </div>
 
@@ -1173,7 +1173,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Elevation-Data">Elevation Data<a class="anchor-link" href="#Elevation-Data">&#182;</a></h1><p>Terrain algorithms won&#8217;t do much good without elevation data to apply them to, so the first thing we&#8217;ll do is to grab some of that. Specifically, we&#8217;ll download a digital elevation model (<span class="caps">DEM</span>) over Mount St. Helens from <a href="">Microsoft Planetary Computer</a>. Using <span class="caps">STAC</span> (via <a href="">pystac-client</a>) will allow us to quickly find the asset we need, and the <a href="">stackstac</a> package will make it easy to download and clip it into a 2D Numpy&nbsp;array.</p>
+<h1 id="Elevation-Data">Elevation Data<a class="anchor-link" href="#Elevation-Data">&#182;</a></h1><p>Terrain algorithms won&#8217;t do much good without elevation data to apply them to, so the first thing we&#8217;ll do is to grab some of that. Specifically, we&#8217;ll download a digital elevation model (<span class="caps">DEM</span>) over Mount St. Helens from <a href="https://planetarycomputer.microsoft.com/">Microsoft Planetary Computer</a>. Using <span class="caps">STAC</span> (via <a href="https://github.com/stac-utils/pystac-client">pystac-client</a>) will allow us to quickly find the asset we need, and the <a href="https://github.com/gjoseph92/stackstac">stackstac</a> package will make it easy to download and clip it into a 2D Numpy&nbsp;array.</p>
 
 </div>
 </div>
@@ -1297,7 +1297,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Slope">Slope<a class="anchor-link" href="#Slope">&#182;</a></h1><p>The concept of slope is simple: How much does elevation change within an area? Steep areas have lots of elevation change over a short distance while flat areas have very little. However, applying that concept to a 2D array raises the question, how do we define change within an&nbsp;area?</p>
-<p>There have been <em>many</em> different slope algorithms created to answer that question, and each produces slightly different results. We&#8217;re going to use the <a href="https://people.csail.mit.edu/bkph/papers/Hill-Shading.pdf">Horn 1981</a> algorithm since it is widely used (supported by <span class="caps">GDAL</span>, <span class="caps">GRASS</span>, WhiteBox Tools, <span class="caps">ESRI</span>, etc.) but if you want to dive into the rabbit hole of slope algorithm comparisons, check out <a href="https://www.usna.edu/Users/oceano/pguth/md_help/html/demb1f3n.htm">this site</a> or <a href="https://www.researchgate.net/publication/209803713_The_Effect_of_Slope_Algorithms_on_Slope_Estimates_within_a_GIS">this paper</a>.</p>
+<p>There have been <em>many</em> different slope algorithms created to answer that question, and each produces slightly different results. We&#8217;re going to use the <a href="https://people.csail.mit.edu/bkph/papers/Hill-Shading.pdf">Horn 1981</a> algorithm since it is widely used (supported by <span class="caps">GDAL</span>, <span class="caps">GRASS</span>, Whitebox Tools, <span class="caps">ESRI</span>, etc.) but if you want to dive into the rabbit hole of slope algorithm comparisons, check out <a href="https://www.usna.edu/Users/oceano/pguth/md_help/html/demb1f3n.htm">this site</a> or <a href="https://www.researchgate.net/publication/209803713_The_Effect_of_Slope_Algorithms_on_Slope_Estimates_within_a_GIS">this paper</a>.</p>
 <p>Horn&#8217;s algorithm calculates slope for each pixel using the following equation, where $\frac{dz}{dx}$ is the east-west gradient of neighboring pixels and $\frac{dz}{dy}$ is the north-south&nbsp;gradient.</p>
 $$
 slope _{percent} = \sqrt {\frac{dz}{dx}^2 + \frac{dz}{dy}^2}
@@ -1361,14 +1361,7 @@ $$<p>Let&#8217;s break that equation down by calculating the slope of a single&n
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="East-West-Gradient">East-West Gradient<a class="anchor-link" href="#East-West-Gradient">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The first term in the Horn algorithm, the east-west gradient $\frac{dz}{dx}$, describes how elevation changes between the east and west side of the pixel neighborhood. To solve it, we&#8217;ll break it down into the change in elevation $dz$ over the horizontal distance&nbsp;$dx$.</p>
+<h3 id="East-West-Gradient">East-West Gradient<a class="anchor-link" href="#East-West-Gradient">&#182;</a></h3><p>The first term in the Horn algorithm, the east-west gradient $\frac{dz}{dx}$, describes how elevation changes between the east and west side of the pixel neighborhood. To solve it, we&#8217;ll break it down into the change in elevation $dz$ over the horizontal distance&nbsp;$dx$.</p>
 <p>The vertical distance between pixels, $dz$, is calculated with the following equation, where the northwest pixel in the neighborhood is labeled $z_{nw}$, the southwest pixel is labeled $z_{sw}$, and so&nbsp;on.</p>
 $$
 dz = \frac{(z_{nw} + z_{sw} + 2z_{w}) - (z_{ne} + z_{se} + 2z_{e})}{8}
@@ -1441,14 +1434,7 @@ $$<p>There are a few things to notice in the equation&nbsp;above.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="North-South-Gradient">North-South Gradient<a class="anchor-link" href="#North-South-Gradient">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The second term in the Horn algorithm, the north-south gradient $\frac{dz}{dy}$, describes how elevation changes between the north and south side of the pixel neighborhood. It&#8217;s solution is nearly identical to the east-west gradient, after swapping in the appropriate&nbsp;pixels.</p>
+<h3 id="North-South-Gradient">North-South Gradient<a class="anchor-link" href="#North-South-Gradient">&#182;</a></h3><p>The second term in the Horn algorithm, the north-south gradient $\frac{dz}{dy}$, describes how elevation changes between the north and south side of the pixel neighborhood. It&#8217;s solution is nearly identical to the east-west gradient, after swapping in the appropriate&nbsp;pixels.</p>
 $$
 dz = \frac{(z_{sw} + z_{se} + 2z_{s}) + (z_{nw} + z_{ne} + 2z_{n})}{8}
 $$<p>And in&nbsp;code:</p>
