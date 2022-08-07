@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Cellular Flood</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/theme/css/main.css" />
+</head>
+<body>
+
+    <div class="navigation pure-menu pure-menu-horizontal">
+        <a href="/" class="pure-menu-heading  pure-menu-link">Aaron Zuspan</a>
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item"></li>
+
+            <li class="pure-menu-item"><a href="/pages/about.html" class="pure-menu-link">About</a></li>
+            <li class="pure-menu-item"><a href="/category/algorithms.html" class="pure-menu-link">Algorithms</a></li>
+            <li class="pure-menu-item pure-menu-selected"><a href="/category/earth-engine.html" class="pure-menu-link">Earth Engine</a></li>
+        </ul>
+    </div>
+
+
+<div class="page-container">
+    <div class="entry-content">
+        <div class="post-meta pure-g">
+<div class="pure-u-3-4 meta-data">
+    <a href="/category/earth-engine.html" class="category">Earth Engine</a><br />
+
+    <a class="author" href="/author/aaron-zuspan.html">Aaron Zuspan</a>
+    &mdash; <abbr title="2022-08-07T11:46:46.748364-07:00">2022.08.07</abbr>
+</div>        </div>
+    </div>
+
+    <div class="article-header-container">
+        <div class="background-image-container">
+
+            <div class="background-image-small">
+                <div class="title-container">
+                    <h1>Cellular&nbsp;Flood</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="entry-content">
+        <p>I recently built <a href="https://aazuspan.github.io/cellular-automata-in-earth-engine.html">Conway&#8217;s Game of Life in Earth Engine</a>. It was a fun experiment, but I felt like it ignored one of the coolest aspects of cellular automata in Earth Engine—easy access to petabytes of geospatial data. So I decided to build a cellular automaton that would use elevation data to roughly simulate changes in sea&nbsp;level.</p>
+<p><center><img src="./assets/olympic.gif" alt="Simulated sea level rise in the Pacific Northwest"></img></center></p>
+<p>If you want to run it yourself, check out the <a href="https://aazuspan.users.earthengine.app/view/cellular-flood">Earth Engine app</a>. Below, I&#8217;ll go through the code to show how it&nbsp;works.</p>
+<h2>Cellular&nbsp;Automata</h2>
+<p>As I outlined in the <a href="https://aazuspan.github.io/cellular-automata-in-earth-engine.html">Game of Life post</a>, cellular automata operate in three&nbsp;steps:</p>
+<ol>
+<li>Set each cell to an initial state, usually&nbsp;randomly.</li>
+<li>Determine the next state for each cell based on its current state, the states of the cells around it, and a fixed set of&nbsp;rules.</li>
+<li>Set each cell to its new state. Repeat steps 2 and&nbsp;3.</li>
+</ol>
+<h2>The Initial&nbsp;State</h2>
+<p>To simulate sea level change, each cell was assigned as above or below water, represented by pixel values of 0 or 1. I wanted to use current oceans as the starting point, so I decided to start with global land cover data from the <a href="https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global">Copernicus Global Land Cover</a>&nbsp;dataset.</p>
+<p>Below, I loaded the <span class="caps">LULC</span> data, reprojected to a coarse scale to speed up processing, and created a binary mask from pixels classified as oceans and seas (value&nbsp;200).</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">proj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Projection</span><span class="p">(</span><span class="s2">&quot;EPSG:3857&quot;</span><span class="p">).</span><span class="nx">atScale</span><span class="p">(</span><span class="mf">1800</span><span class="p">);</span><span class="w"></span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">cgls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">ImageCollection</span><span class="p">(</span><span class="s2">&quot;COPERNICUS/Landcover/100m/Proba-V-C3/Global&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">ocean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cgls</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">first</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s2">&quot;discrete_classification&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">200</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">unmask</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">updateMask</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">proj</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<p><center><img src="./assets/cellular_flood_oceans.png" alt="A binary mask of global oceans"></img></center></p>
+<p>At this point, I also initialized the starting sea level and loaded the elevation data that would be used to update cell states. I decided to use the <a href="https://developers.google.com/earth-engine/datasets/catalog/NOAA_NGDC_ETOPO1"><span class="caps">ETOPO1</span> global elevation</a> dataset because it included bathymetry data that allowed me to both raise <em>and</em> lower sea level, exposing underwater&nbsp;terrain. </p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">seaLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"></span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">elevation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Image</span><span class="p">(</span><span class="s2">&quot;NOAA/NGDC/ETOPO1&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s2">&quot;bedrock&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">resample</span><span class="p">(</span><span class="s2">&quot;bilinear&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">reproject</span><span class="p">(</span><span class="nx">proj</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<h2>The Next&nbsp;State</h2>
+<p>After establishing the initial state, the next step was to figure out how to update that state with a new sea level. There&#8217;s a lot of research on using cellular automata to accurately simulate flooding and inundation with complex rules that take fluid dynamics and physics into account, but my goal was just to create a fun tech demo, so I came up with the simplest ruleset I could think&nbsp;of.</p>
+<p>Each time step, sea level is changed by a fixed amount and cells adjacent to water become water <em>if</em> their elevation is below the current sea&nbsp;level. </p>
+<p>I found pixels adjacent to water by running a max reducer over neighborhoods of pixels. Because water cells have a value of 1 and land cells have a value of 0, the max reducer would locate any land cells near to water. I settled on a circular kernel with a radius of 3 after some experimentation, as smaller kernels produced less realistic flooding behavior and larger kernels took too long to&nbsp;process.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">adjacent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ocean</span><span class="p">.</span><span class="nx">reduceNeighborhood</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">reducer</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Reducer</span><span class="p">.</span><span class="nx">max</span><span class="p">(),</span><span class="w"></span>
+<span class="w">    </span><span class="nx">kernel</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Kernel</span><span class="p">.</span><span class="nx">circle</span><span class="p">(</span><span class="mf">3</span><span class="p">),</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div>
+
+<p>Finally, I incremented the sea level by an adjustable rate of change and compared the elevation of the adjacent pixels to the updated sea level, generating the next binary ocean&nbsp;mask.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5</span><span class="p">;</span><span class="w"></span>
+
+<span class="nx">seaLevel</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">rate</span><span class="p">;</span><span class="w"></span>
+<span class="nx">ocean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">adjacent</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">and</span><span class="p">(</span><span class="nx">elevation</span><span class="p">.</span><span class="nx">lt</span><span class="p">(</span><span class="nx">seaLevel</span><span class="p">));</span><span class="w"></span>
+</code></pre></div>
+
+<p><center><img src="./assets/cellular_flood_step.gif" alt="A binary ocean mask in the U.S. Gulf Coast before and after updating sea level."></img></center></p>
+<h2>Rinse and&nbsp;Repeat</h2>
+<p>With the logic for changing sea level and expanding water into new areas written, the next step was simply to repeat that process, storing each state in an array to show how water extent would change over&nbsp;time.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">states</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">ocean</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">&lt;</span><span class="mf">10</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">adjacent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ocean</span><span class="p">.</span><span class="nx">reduceNeighborhood</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">reducer</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Reducer</span><span class="p">.</span><span class="nx">max</span><span class="p">(),</span><span class="w"></span>
+<span class="w">    </span><span class="nx">kernel</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Kernel</span><span class="p">.</span><span class="nx">circle</span><span class="p">(</span><span class="mf">3</span><span class="p">),</span><span class="w"></span>
+<span class="w">  </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">  </span><span class="nx">seaLevel</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">5</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="nx">ocean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">adjacent</span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">and</span><span class="p">(</span><span class="nx">elevation</span><span class="p">.</span><span class="nx">lt</span><span class="p">(</span><span class="nx">seaLevel</span><span class="p">));</span><span class="w"></span>
+<span class="w">  </span><span class="nx">states</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">ocean</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>While you could simply add each state to the map to see the changes, I decided to combine then into an image collection for&nbsp;animation.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">region</span><span class="o">:</span><span class="w"> </span><span class="nx">geometry</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">crs</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;EPSG:3857&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">dimensions</span><span class="o">:</span><span class="w"> </span><span class="mf">350</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;gif&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">framesPerSecond</span><span class="o">:</span><span class="w"> </span><span class="mf">8</span><span class="p">,</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">anim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ui</span><span class="p">.</span><span class="nx">Thumbnail</span><span class="p">({</span><span class="w"></span>
+<span class="w">  </span><span class="nx">image</span><span class="o">:</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">ImageCollection</span><span class="p">(</span><span class="nx">states</span><span class="p">),</span><span class="w"></span>
+<span class="w">  </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="nx">params</span><span class="p">,</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="nx">print</span><span class="p">(</span><span class="nx">anim</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+
+<p>Here&#8217;s the result, showing 50 time steps with +1m of sea level change per step over the Gulf&nbsp;Coast.</p>
+<p><center><img src="./assets/cellular_flood_gulf_coast.gif" alt="An animation of a binary ocean mask in the U.S. Gulf Coast spreading over land."></img></center></p>
+<h2>Polishing and&nbsp;Packaging</h2>
+<p>With the core cellular automaton built, I spent a while tweaking the visualization to make it more visually impressive. I won&#8217;t go into all the details, but I used the ocean mask and elevation data to color water based on depth, blended that over a hillshade, and overlayed a settlement layer on top to give some spatial context. You can check out the <a href="https://code.earthengine.google.com/cefc8aa7e2c4afc4f7d3cfb85103466d">final code here</a>, which also includes the <span class="caps">UI</span> elements for the&nbsp;app.</p>
+<p><center><img src="./assets/gibraltar.gif" alt="Simulated sea level rise in the Strait of Gibraltar"></img></center></p>
+    </div>
+
+    <footer>
+        <div class="tags">
+            <a href="/tag/earth-engine.html">earth-engine</a>
+            <a href="/tag/cellular-automata.html">cellular-automata</a>
+            <a href="/tag/javascript.html">javascript</a>
+        </div>
+        <div class="pure-g post-footer">
+            <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-g poster-info">
+                    <div class="pure-u-3-4">
+                        <h3 class="author-name"><a href="/author/aaron-zuspan.html">Aaron Zuspan</a></h3>
+                        <p class="author-description">
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+    </footer>
+
+
+</div>
+
+
+
+    <footer class="index-footer">
+
+        <a href="/" title="Aaron Zuspan">Aaron Zuspan</a>
+        <a href="/category/algorithms.html">Algorithms</a>
+        <a href="/category/earth-engine.html">Earth Engine</a>
+
+    </footer>
+
+</body>
+</html>
