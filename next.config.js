@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["react-syntax-highlighter"],
   experimental: {
-    appDir: true,
+    appDir: false,
   },
 }
 

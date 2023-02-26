@@ -1,0 +1,9 @@
+.item {
+    padding: 8px;
+    color: inherit;
+}
+
+.active,
+.item:hover {
+    text-decoration: dotted underline;
+}
