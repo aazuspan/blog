@@ -15,6 +15,7 @@ import styles from "../../styles/blog_post.module.css";
 export async function getStaticPaths() {
   const paths = fs
     .readdirSync("posts")
+    .filter((fileName) => fileName.endsWith(".md"))
     .map((fileName) => ({ params: { id: fileName.replace(/\.md$/, "") } }));
 
   return {
