@@ -14,3 +14,9 @@ npm run build
 ## Deploying
 
 Changes pushed to `main` are automatically deployed to [Vercel](https://vercel.com/aazuspan/blog).
+
+## Tools Used
+
+- [Next.js](https://nextjs.org/)
+- [Three.js](https://threejs.org/)
+- [utterances](https://utteranc.es/)
