@@ -6,7 +6,7 @@ summary: Let's simulate sea level rise with cellular automata in Earth Engine.
 date: "2022-08-07"
 ---
 
-I recently built [Conway's Game of Life in Earth Engine](https://aazuspan.vercel.app/blog/gol). It was a fun experiment, but I felt like it ignored one of the coolest aspects of cellular automata in Earth Engine—easy access to petabytes of geospatial data. So I decided to build a cellular automaton that would use elevation data to roughly simulate changes in sea level.
+I recently built [Conway's Game of Life in Earth Engine](https://aazuspan.dev/blog/gol). It was a fun experiment, but I felt like it ignored one of the coolest aspects of cellular automata in Earth Engine—easy access to petabytes of geospatial data. So I decided to build a cellular automaton that would use elevation data to roughly simulate changes in sea level.
 
 <center><img src="/images/olympic.gif" alt="Simulated sea level rise in the Pacific Northwest"></img></center>
 
@@ -14,7 +14,7 @@ If you want to run it yourself, check out the [Earth Engine app](https://aazuspa
 
 ## Cellular Automata
 
-As I outlined in the [Game of Life post](https://aazuspan.vercel.app/blog/gol), cellular automata operate in three steps:
+As I outlined in the [Game of Life post](https://aazuspan.dev/blog/gol), cellular automata operate in three steps:
 
 1. Set each cell to an initial state, usually randomly.
 2. Determine the next state for each cell based on its current state, the states of the cells around it, and a fixed set of rules.
