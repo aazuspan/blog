@@ -13,4 +13,4 @@ npm run build
 
 ## Deploying
 
-Open [http://localhost:3000](http://localhost:3000).
+Changes pushed to `main` are automatically deployed to [Vercel](https://vercel.com/aazuspan/blog).
