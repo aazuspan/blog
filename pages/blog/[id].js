@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import Date from "../../components/date";
 import Layout from "../../components/layout";
 import CodeBlock from "../../components/codeblock";
+import Utterance from "../../components/utterance";
 import styles from "../../styles/blog_post.module.css";
 
 export async function getStaticPaths() {
@@ -40,14 +41,10 @@ export async function getStaticProps({ params: { id } }) {
 }
 
 export default function Post({ markdown, metadata }) {
-  const astPlugins = [
-    [remarkMath, { inlineMath: [["$", "$"]], displayMath: [["$$", "$$"]] }],
-  ];
-
   return (
     <Layout title={metadata.title} description={metadata.summary}>
-      <h1 className={styles.title}>{metadata.title}</h1>
       <article>
+        <h1 className={styles.title}>{metadata.title}</h1>
         <small>
           <Date dateString={metadata.date} />
         </small>
@@ -59,6 +56,9 @@ export default function Post({ markdown, metadata }) {
           components={{ code: CodeBlock }}
         />
       </article>
+      <br />
+      <hr />
+      <Utterance />
     </Layout>
   );
 }
