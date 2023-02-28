@@ -136,3 +136,11 @@ code > span {
 .linenumber {
   font-style: italic;
 }
+
+body.dark code.inline {
+  color: rgb(118, 217, 230);
+}
+
+body.light code.inline {
+  color: rgb(57, 58, 52);
+}

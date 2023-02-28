@@ -9,7 +9,7 @@ export default function CodeBlock({ node, inline, className, children, }) {
   const { theme } = useContext(ThemeContext);  
 
   if (inline) {
-    return <code className={className}>{children}</code>;
+    return <code className="inline">{children}</code>;
   }
 
   const match = /language-(\w+)/.exec(className || "");
