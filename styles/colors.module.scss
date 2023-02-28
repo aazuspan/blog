@@ -1,13 +1,19 @@
-$background: rgb(255, 255, 255);
-$accent: rgb(37, 178, 194);
-$text: rgb(92, 92, 92);
+$backgroundLight: rgb(255, 255, 255);
+$accentLight: rgb(37, 178, 194);
+$textLight: rgb(92, 92, 92);
 
-// $background: rgb(46, 46, 46);
-// $accent: rgb(233, 197, 130);
-// $text: rgb(223, 221, 221);
+$backgroundDark: rgb(46, 46, 46);
+// $accentDark: rgb(154, 240, 228);
+$accentDark: rgb(240, 224, 154);
+
+$textDark: rgb(202, 197, 197);
 
 :export {
-  background: $background;
-  accent: $accent;
-  text: $text;
+  backgroundLight: $backgroundLight;
+  accentLight: $accentLight;
+  textLight: $textLight;
+
+  backgroundDark: $backgroundDark;
+  accentDark: $accentDark;
+  textDark: $textDark;
 }

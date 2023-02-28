@@ -7,11 +7,57 @@ body {
   line-height: 1.6;
   font-size: 18px;
   font-family: var(--main-font), sans-serif;
-  background-color: $background;
-  color: $text;
 }
 
-h1, h2, h3, h4 {
+body.light {
+  background-color: $backgroundLight;
+  color: $textLight;
+  transition-property: background-color, color;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
+}
+
+body.dark {
+  background-color: $backgroundDark;
+  color: $textDark;
+  transition-property: background-color, color;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out;
+}
+
+body.light a {
+  color: $accentLight;
+  transition: color 0.5s ease-in-out;
+}
+
+body.dark a {
+  color: $accentDark;
+  transition: color 0.5s ease-in-out;
+}
+
+body.dark g.social-svg-icon {
+  fill: $accentDark !important;
+  transition: fill 0.5s ease-in-out;
+}
+
+body.light g.social-svg-icon {
+  fill: $accentLight !important;
+  transition: fill 0.5s ease-in-out;
+}
+
+.social-container:hover {
+  transform: scale(1.25);
+  transition: transform 0.3s ease-in-out;
+}
+
+g.social-svg-mask {
+  fill-opacity: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--header-font), sans-serif;
 }
 
@@ -20,7 +66,6 @@ h1, h2, h3, h4 {
 }
 
 a {
-  color: $accent;
   text-decoration: none;
 }
 
@@ -69,9 +114,25 @@ hr {
 }
 
 small {
-  color:rgb(128, 129, 120);
+  color: rgb(128, 129, 120);
 }
 
 .math {
   overflow: auto;
+}
+
+code {
+  font-size: 0.9rem !important;
+  line-height: 1.2rem !important;
+  font-family: Menlo, Monaco, "Courier New", monospace !important;
+  transition: all 0.3s ease-in-out;
+}
+
+code > span {
+  padding-bottom: 0.1rem !important;
+  padding-top: 0.1rem !important;
+}
+
+.linenumber {
+  font-style: italic;
 }
