@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Layout from "../components/layout";
 import styles from "../styles/research.module.css";
 
@@ -16,10 +17,8 @@ export default function Research() {
 
         <h3>Posters and Talks</h3>
         <li key="ashes-to-logs">
-          <b>
-            From Ashes to Logs: Long-term Monitoring of Post-fire Harvests in
-            the Western United States.
-          </b> Poster presented at the Oregon Post-fire Symposium, February 2023.
+            <Link href="publications/oregon_postfire_2023_poster.pdf">From Ashes to Logs: Long-term Monitoring of Post-fire Harvests in
+            the Western United States.</Link> Poster presented at the Oregon Post-fire Symposium, February 2023.
         </li>
       </ul>
     </Layout>
