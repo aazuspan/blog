@@ -1,2 +1,2 @@
-posts/* linguist-vendored
-public/* linguist-generated
+posts/** linguist-vendored
+public/** linguist-generated
