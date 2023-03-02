@@ -1,6 +1,6 @@
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
-  vs as lightStyle,
+  ghcolors as lightStyle,
   xonokai as darkStyle,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ThemeContext } from "./theme";
