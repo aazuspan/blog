@@ -20,8 +20,10 @@ export default function CodeBlock({ node, inline, className, children, }) {
       children={String(children).replace(/\n$/, "")}
       style={theme === "dark" ? darkStyle : lightStyle}
       language={language}
-      showLineNumbers={true}
+      showLineNumbers={false}
       PreTag={CodeContainer}
+      lang={language}
+      content={String(children).replace(/\n$/, "")}
     />
   );
 }
