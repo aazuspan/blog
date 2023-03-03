@@ -13,7 +13,6 @@ function GlobeMesh() {
 
   useFrame((state, delta) => {
       mesh.current.rotation.y += (mouse.x / window.innerWidth) * 1.5;
-    //   mesh.current.rotation.x += (mouse.y / window.innerHeight) * -1.5;
       mesh.current.rotation.x += delta * 0.05;
   });
 

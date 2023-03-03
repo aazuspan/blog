@@ -85,6 +85,7 @@ small + center {
 
 canvas {
   min-height: 50px;
+  position: relative;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }
 
@@ -131,4 +132,31 @@ code {
 
 pre {
   margin: 0;
+}
+
+:root,
+body {
+  height: 100%;
+}
+
+// https://stackoverflow.com/questions/69281957/footer-in-next-js
+#__next {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+}
+
+main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+footer {
+  text-align: center;  
+  margin: 0;
+  padding: 0;
+  bottom: 0;
+  box-sizing: border-box;
 }
