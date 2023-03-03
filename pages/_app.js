@@ -22,7 +22,9 @@ export default function App({ Component, pageProps }) {
     <main className={`${headerFont.variable} ${mainFont.className}`}>
       <ThemeProvider>
         <ThemeToggle />
-        <Globe />
+        <header>
+          <Globe />
+        </header>
         <Component {...pageProps} />
       </ThemeProvider>
     </main>
