@@ -25,7 +25,7 @@ body.dark {
   transition-timing-function: ease-in-out;
 }
 
-body.light a {
+a {
   color: $accentLight;
   transition: color 0.5s ease-in-out;
 }
