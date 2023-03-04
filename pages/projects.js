@@ -15,7 +15,7 @@ const PROJECTS = [
         name: "eerepr",
         description:
           "Interactive HTML reprs for Earth Engine objects in a Jupyter notebook.",
-        url: "https://github.com/aazuspan/wxee",
+        url: "https://github.com/aazuspan/eerepr",
       },
       {
         name: "stacmap",
@@ -63,7 +63,7 @@ export default function Projects() {
           <h3>{category}</h3>
           <ul className={styles.projectList}>
             {projects.map((project) => (
-              <Project {...project} />
+              <Project {...project} key={project.url} />
             ))}
           </ul>
         </div>
@@ -75,7 +75,7 @@ export default function Projects() {
 
 function Project({name, description, url}) {
   return (
-    <li key={url}>
+    <li>
       <a href={url}>{name}</a> - {description}
     </li>
   )

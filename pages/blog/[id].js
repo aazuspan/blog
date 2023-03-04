@@ -42,12 +42,13 @@ export default function Post({ markdown, metadata }) {
           <Date dateString={metadata.date} />
         </small>
         <ReactMarkdown
-          children={markdown}
           skipHtml={false}
           remarkPlugins={[remarkMath, remarkGfm]}
           rehypePlugins={[rehypeKatex, rehypeRaw]}
           components={{ code: CodeBlock }}
-        />
+        >
+          {markdown}
+        </ReactMarkdown>
       </article>
       <br />
       <hr />

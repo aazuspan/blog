@@ -19,6 +19,7 @@ export default function NavBar() {
           <Link
             href={item.href}
             className={`${styles.item} ${active ? styles.active : ""}`}
+            key={item.href}
           >
             {item.text}
           </Link>

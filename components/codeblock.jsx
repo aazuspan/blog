@@ -24,13 +24,14 @@ export default function CodeBlock({ node, inline, className, children }) {
 
   return (
     <SyntaxHighlighter
-      children={content}
       style={theme === "dark" ? darkStyle : lightStyle}
       language={language}
       showLineNumbers={false}
       PreTag={CodeContainer}
       lang={language}
       content={content}
-    />
+    >
+      {content}
+    </SyntaxHighlighter>
   );
 }

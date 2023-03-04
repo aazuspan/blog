@@ -5,17 +5,18 @@ import { ThemeContext } from "./theme";
 export default function Utterance() {
   const containerRef = useRef();
   const { theme } = useContext(ThemeContext);
-  const config = {
-    src: "https://utteranc.es/client.js",
-    repo: "aazuspan/blog",
-    "issue-term": "pathname",
-    label: "💬 utterance",
-    theme: `github-${theme}`,
-    crossOrigin: "anonymous",
-    defer: true,
-  };
 
   useEffect(() => {
+    const config = {
+      src: "https://utteranc.es/client.js",
+      repo: "aazuspan/blog",
+      "issue-term": "pathname",
+      label: "💬 utterance",
+      theme: `github-${theme}`,
+      crossOrigin: "anonymous",
+      defer: true,
+    };
+
     const utterances = document.createElement("script");
 
     Object.entries(config).forEach(([key, value]) => {
