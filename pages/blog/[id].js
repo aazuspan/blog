@@ -1,7 +1,4 @@
 import ReactMarkdown from "react-markdown";
-import path from "path";
-import matter from "gray-matter";
-import fs from "fs";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
@@ -12,12 +9,12 @@ import Layout from "../../components/layout";
 import CodeBlock from "../../components/codeblock";
 import Utterance from "../../components/utterance";
 import styles from "../../styles/blog_post.module.css";
+import { getPostPaths, getParsedPost } from "../../utils/posts";
 
 export async function getStaticPaths() {
-  const paths = fs
-    .readdirSync("posts")
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => ({ params: { id: fileName.replace(/\.md$/, "") } }));
+  const paths = getPostPaths().map((filename) => ({
+    params: { id: filename.replace(/\.md$/, "") },
+  }));
 
   return {
     paths,
@@ -26,11 +23,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params: { id } }) {
-  const raw = fs
-    .readFileSync(path.join("posts", id + ".md"), "utf8")
-    .toString();
-
-  const parsed = matter(raw);
+  const parsed = getParsedPost(id);
 
   return {
     props: {
