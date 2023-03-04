@@ -1,8 +1,11 @@
-.item {
-    padding: 8px;
+.title {
+  margin: 0;
 }
 
-.active,
-.item:hover {
-    text-decoration: dotted underline;
+.item {
+  margin: 8px;
+}
+
+.active {
+  text-decoration: dotted underline;
 }

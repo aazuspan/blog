@@ -12,19 +12,31 @@ export default function NavBar() {
   const router = useRouter();
 
   return (
-    <nav>
-      {NAV_ITEMS.map((item) => {
-        const active = item.href === router.pathname;
-        return (
-          <Link
-            href={item.href}
-            className={`${styles.item} ${active ? styles.active : ""}`}
-            key={item.href}
-          >
-            {item.text}
-          </Link>
-        );
-      })}
-    </nav>
+    <>
+      <Link href="/">
+        <h1
+          className={`${styles.title} ${
+            router.pathname === "/" ? styles.active : ""
+          }`}
+        >
+          Aaron Zuspan
+        </h1>
+      </Link>
+      <nav className={styles.bar}>
+        {NAV_ITEMS.map((item) => {
+          const active = router.pathname.includes(item.href);
+
+          return (
+            <Link
+              href={item.href}
+              className={`${styles.item} ${active ? styles.active : ""}`}
+              key={item.href}
+            >
+              {item.text}
+            </Link>
+          );
+        })}
+      </nav>
+    </>
   );
 }

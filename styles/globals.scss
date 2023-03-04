@@ -6,7 +6,7 @@ body {
   margin: 0;
   line-height: 1.6;
   font-size: 18px;
-  font-family: var(--main-font), sans-serif;
+  font-family: "Quicksand", sans-serif;
 }
 
 body.light {
@@ -26,51 +26,28 @@ body.dark {
 }
 
 a {
+  text-decoration: none;
   color: $accentLight;
   transition: color 0.5s ease-in-out;
 }
 
 body.dark a {
   color: $accentDark;
-  transition: color 0.5s ease-in-out;
 }
 
-body.dark g.social-svg-icon {
-  fill: $accentDark !important;
-  transition: fill 0.5s ease-in-out;
-}
-
-body.light g.social-svg-icon {
-  fill: $accentLight !important;
-  transition: fill 0.5s ease-in-out;
-}
-
-.social-container:hover {
-  transform: scale(1.25);
-  transition: transform 0.3s ease-in-out;
-}
-
-g.social-svg-mask {
-  fill-opacity: 0;
+a:hover {
+  opacity: 0.7;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--header-font), sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 * {
   box-sizing: border-box;
-}
-
-a {
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: dotted underline;
 }
 
 img {
@@ -154,5 +131,6 @@ main {
 }
 
 footer {
-  text-align: center;  
+  text-align: center;
+  padding-bottom: 1rem;
 }
