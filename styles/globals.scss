@@ -9,6 +9,10 @@ body {
   font-family: "Quicksand", sans-serif;
 }
 
+iframe {
+  width: 100%;
+}
+
 body.light {
   background-color: $backgroundLight;
   color: $textLight;
