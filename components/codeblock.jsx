@@ -3,17 +3,16 @@ import {
   ghcolors as lightStyle,
   xonokai as darkStyle,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { ThemeContext } from "./theme";
-import { useContext } from "react";
 import styles from "../styles/codeblock.module.scss";
+import { useColorModeValue } from "@chakra-ui/react";
 
 import CodeContainer from "./code_container";
 
 export default function CodeBlock({ node, inline, className, children }) {
-  const { theme } = useContext(ThemeContext);
   const match = /language-(\w+)/.exec(className || "");
   const language = match ? match[1] : "text";
   const content = String(children).replace(/\n$/, "").trim();
+  const style = useColorModeValue(lightStyle, darkStyle);
 
   if (inline) {
     return <code className={styles.inline}>{content}</code>;
@@ -24,7 +23,7 @@ export default function CodeBlock({ node, inline, className, children }) {
 
   return (
     <SyntaxHighlighter
-      style={theme === "dark" ? darkStyle : lightStyle}
+      style={style}
       language={language}
       showLineNumbers={false}
       PreTag={CodeContainer}

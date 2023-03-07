@@ -11,9 +11,15 @@
     "nbconvert": "python -m scripts.convert_notebooks"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.5.1",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@fontsource/outfit": "^4.5.11",
+    "@fontsource/quicksand": "^4.5.12",
     "@react-three/fiber": "^8.11.0",
     "date-fns": "^2.29.3",
     "feed": "^4.2.2",
+    "framer-motion": "^10.0.2",
     "gray-matter": "^4.0.3",
     "next": "13.1.6",
     "next-sitemap": "^3.1.55",
