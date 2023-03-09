@@ -1,7 +1,7 @@
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   ghcolors as lightStyle,
-  xonokai as darkStyle,
+  dracula as darkStyle,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import styles from "../styles/codeblock.module.scss";
 import { useColorModeValue } from "@chakra-ui/react";

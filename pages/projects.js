@@ -1,5 +1,5 @@
+import { Heading, Link, VStack, StackItem } from "@chakra-ui/react";
 import Layout from "../components/layout";
-import styles from "../styles/projects.module.css";
 
 const PROJECTS = [
   {
@@ -40,6 +40,12 @@ const PROJECTS = [
           "Interactively visualize land cover changes from time series data in Earth Engine.",
         url: "https://github.com/aazuspan/sankee",
       },
+      {
+        name: "snazzy",
+        description:
+          "Use any SnazzyMaps basemap in the Earth Engine Code Editor with a couple lines of code.",
+        url: "https://github.com/aazuspan/snazzy",
+      },
     ],
   },
   {
@@ -47,7 +53,8 @@ const PROJECTS = [
     projects: [
       {
         name: "Arise",
-        description: "A twin-stick shooter game made from scratch in one week for a game jam.",
+        description:
+          "A twin-stick shooter game made from scratch in one week for a game jam.",
         url: "https://aazus.itch.io/arise",
       },
     ],
@@ -57,26 +64,25 @@ const PROJECTS = [
 export default function Projects() {
   return (
     <Layout title="Projects" description="Personal open-source projects.">
-      <h2>Projects</h2>
+      <Heading size="md">Projects</Heading>
+      <VStack spacing={12} align="stretch">
       {PROJECTS.map(({ category, projects }) => (
-        <div key={category}>
-          <h3>{category}</h3>
-          <ul className={styles.projectList}>
+        <VStack spacing={4} align="stretch">
+            <Heading size="sm">{category}</Heading>
             {projects.map((project) => (
               <Project {...project} key={project.url} />
             ))}
-          </ul>
-        </div>
+          </VStack>
       ))}
+      </VStack>
     </Layout>
   );
 }
 
-
-function Project({name, description, url}) {
+function Project({ name, description, url }) {
   return (
-    <li>
-      <a href={url}>{name}</a> - {description}
-    </li>
-  )
+    <StackItem>
+      <Link href={url} isExternal>{name}</Link> - {description}
+    </StackItem>
+  );
 }

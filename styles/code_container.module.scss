@@ -1,4 +1,4 @@
-@import "./colors.module.scss";
+// @import "./colors.module.scss";
 
 .code-block {
   position: relative;
@@ -36,12 +36,12 @@
 :global(body.dark) .header,
 :global(body.dark) .copy-button {
   background-color: #1d1d1d;
-  color: $textDark;
-  fill: $textDark;
+  // color: $textDark;
+  // fill: $textDark;
 }
 
 :global(body.light) .header,
 :global(body.light) .copy-button {
   background-color: #e6e4e4;
-  color: $textLight;
+  // color: $textLight;
 }

@@ -6,16 +6,14 @@ export default function ThemeToggle() {
 
   return (
     <IconButton
-      position="absolute"
-      top="1rem"
-      right="1rem"
+      top="2rem"
+      left="8rem"
       variant="ghost"
       color={useColorModeValue("brand.light", "brand.dark")}
       _hover={{ bg: "none", transform: "scale(1.5)" }}
       title={`${useColorModeValue("Dark", "Light")} mode`}
       onClick={toggleColorMode}
-      icon={useColorModeValue(<FaRegMoon />, <FaSun />)}
-    >
-    </IconButton>
+      icon={useColorModeValue(<FaSun />, <FaRegMoon />)}
+    ></IconButton>
   );
 }

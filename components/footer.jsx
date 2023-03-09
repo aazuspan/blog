@@ -17,7 +17,7 @@ function SocialLink({ href, icon, ...props }) {
 
 export default function Footer() {
   return (
-    <VStack as="footer">
+    <VStack pt={8} as="footer">
       <HStack spacing={4}>
         <SocialLink
           href="https://twitter.com/aazuspan"

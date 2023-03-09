@@ -35,7 +35,7 @@ export default function NavBar() {
                 href={item.href}
                 key={item.href}
               >
-                <Heading size="sm" fontWeight="regular" textDecoration={active ? "dotted underline" : "none"} >
+                <Heading size="md" fontWeight="regular" textDecoration={active ? "dotted underline" : "none"} >
                   {item.text}
                 </Heading>
               </Link>

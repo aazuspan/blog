@@ -1,11 +1,11 @@
-@import "./colors.module.scss";
+// @import "./colors.module.scss";
 
 :global(body.dark) code.inline {
-  color: $textDark;
+  // color: $textDark;
 }
 
 :global(body.light) code.inline {
-  color: $textLight;
+  // color: $textLight;
 }
 
 .output {

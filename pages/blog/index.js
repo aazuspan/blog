@@ -1,8 +1,8 @@
 import BlogPreview from "../../components/blog_preview";
 import Layout from "../../components/layout";
-import styles from "../../styles/blog_index.module.css";
 import { getSortedPosts } from "../../utils/posts";
 import { generateRssFeed } from "../../utils/feed";
+import { Heading, StackDivider, VStack } from "@chakra-ui/react";
 
 export async function getStaticProps() {
   const posts = getSortedPosts();
@@ -15,12 +15,12 @@ export default function Blog({ posts }) {
   return (
     <>
       <Layout title="Blog" description="Blog posts.">
-        <h2>Blog</h2>
-        <ul className={styles.postList}>
+        <Heading size="md">Blog</Heading>
+        <VStack pt={3} spacing={4} align="stretch" divider={<StackDivider />}>
           {posts.map(({ id, date, title, summary }) =>
             BlogPreview({ id, date, title, summary })
           )}
-        </ul>
+        </VStack>
       </Layout>
     </>
   );

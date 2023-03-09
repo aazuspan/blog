@@ -6,7 +6,7 @@ import { ChakraProvider, VStack, Flex } from "@chakra-ui/react";
 import "@fontsource/outfit/800.css";
 import "@fontsource/outfit/400.css";
 import "@fontsource/quicksand";
-import theme from "./theme";
+import theme from "../utils/theme";
 
 
 export default function App({ Component, pageProps }) {

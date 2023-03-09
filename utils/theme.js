@@ -24,8 +24,8 @@ export default extendTheme({
   },
   colors: {
     brand: {
-      light: "rgb(37, 178, 194)",
-      dark: "rgb(240, 224, 154)",
+      light: "rgb(74, 165, 200)",
+      dark: "#faa2ae",
     },
   },
   fonts: {
