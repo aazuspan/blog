@@ -1,22 +1,21 @@
 import Link from "next/link";
 import Date from "./date";
-import { Heading, StackItem, Text, Stack, Flex, Image, HStack } from "@chakra-ui/react";
+import { Heading, StackItem, Text, Stack, Flex  } from "@chakra-ui/react";
 
 export default function BlogPreview({ id, date, title, summary }) {
   return (
-    <StackItem as="article">
+    <StackItem as="article" key={id}>
       <Flex
         direction={{ base: "column", md: "row" }}
         justifyContent="space-between"
       >
-        <Heading size="sm">
+        <Heading as="h4" pt={0} size="sm">
           <Link href={`/blog/${id}`}>{title}</Link>
         </Heading>
         <Date dateString={date} />
       </Flex>
       <Stack spacing={4} />
-
-      <Text>{summary}</Text>
+      <Text pt={2}>{summary}</Text>
     </StackItem>
   );
 }

@@ -15,7 +15,7 @@ export default function Blog({ posts }) {
   return (
     <>
       <Layout title="Blog" description="Blog posts.">
-        <Heading size="md">Blog</Heading>
+        <Heading as="h1">Blog</Heading>
         <VStack pt={3} spacing={4} align="stretch" divider={<StackDivider />}>
           {posts.map(({ id, date, title, summary }) =>
             BlogPreview({ id, date, title, summary })

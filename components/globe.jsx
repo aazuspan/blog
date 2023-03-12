@@ -30,7 +30,7 @@ export default function Globe() {
 
   return (
     <VStack zIndex="hide" width="100%">
-      <Canvas>
+      <Canvas title="Globe">
         <fog attach="fog" args={[background, 3.5, 5.5]} />
         <directionalLight color="#fff" intensity={1} />
         <GlobeMesh />

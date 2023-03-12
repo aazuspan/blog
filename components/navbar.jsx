@@ -4,8 +4,9 @@ import {
   VStack,
   HStack,
   Link,
-  Heading,
+  Text,
   StackDivider,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
 const NAV_ITEMS = [
@@ -19,30 +20,42 @@ export default function NavBar() {
   const home = router.pathname === "/";
 
   return (
-    <VStack>
+    <VStack as="nav">
       <Link href="/" as={NextLink}>
-        <Heading size="xl" pt={3} fontWeight="bold" textDecoration={home ? "dotted underline" : "none"}>
+        <Text
+          fontSize="4xl"
+          fontWeight={800}
+          fontFamily="Outfit, sans-serif"
+          textDecoration={home ? "dotted underline" : "none"}
+        >
           Aaron Zuspan
-        </Heading>
+        </Text>
       </Link>
-      <nav>
-        <HStack gap={2} divider={<StackDivider borderColor="gray.500" />}>
-          {NAV_ITEMS.map((item) => {
-            const active = router.pathname.includes(item.href);
-            return (
-              <Link
-                as={NextLink}
-                href={item.href}
-                key={item.href}
+      <HStack
+        gap={2}
+        m="0 !important"
+        divider={
+          <StackDivider
+            borderColor={useColorModeValue("gray.300", "gray.600")}
+            transition="all 0.5s !important"
+          />
+        }
+      >
+        {NAV_ITEMS.map((item) => {
+          const active = router.pathname.includes(item.href);
+          return (
+            <Link as={NextLink} href={item.href} key={item.href}>
+              <Text
+                fontSize="xl"
+                fontFamily="Outfit, sans-serif"
+                textDecoration={active ? "dotted underline" : "none"}
               >
-                <Heading size="md" fontWeight="regular" textDecoration={active ? "dotted underline" : "none"} >
-                  {item.text}
-                </Heading>
-              </Link>
-            );
-          })}
-        </HStack>
-      </nav>
+                {item.text}
+              </Text>
+            </Link>
+          );
+        })}
+      </HStack>
     </VStack>
   );
 }

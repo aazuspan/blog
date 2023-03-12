@@ -26,7 +26,7 @@ export default function Utterance() {
     // Timeout needed for stability
     setTimeout(() => {
       containerRef.current.appendChild(utterances);
-    }, 150);
+    }, 300);
     // Prevent duplicating the comment box
     containerRef.current.innerHTML = "";
   }, [colorMode]);
