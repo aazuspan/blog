@@ -1,3 +1,5 @@
+My [personal blog](https://aazuspan.dev) built with [Next.js](https://nextjs.org/) and [Chakra UI](https://chakra-ui.com/) (plus a little bit of [Three.js](https://threejs.org/)).
+
 ## Developing
 
 ```bash
@@ -10,13 +12,3 @@ npm run dev
 npm run nbconvert
 npm run build
 ```
-
-## Deploying
-
-Changes pushed to `main` are automatically deployed to [Vercel](https://vercel.com/aazuspan/blog).
-
-## Tools Used
-
-- [Next.js](https://nextjs.org/)
-- [Three.js](https://threejs.org/)
-- [utterances](https://utteranc.es/)

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useContext } from "react";
-import { ThemeContext } from "./theme";
+import { useEffect, useRef } from "react";
+import { useColorMode } from "@chakra-ui/react";
 
 // https://paulie.dev/posts/2022/08/how-to-use-utterances-with-react/
 export default function Utterance() {
   const containerRef = useRef();
-  const { theme } = useContext(ThemeContext);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     const config = {
@@ -12,7 +12,7 @@ export default function Utterance() {
       repo: "aazuspan/blog",
       "issue-term": "pathname",
       label: "💬 utterance",
-      theme: `github-${theme}`,
+      theme: `github-${colorMode}`,
       crossOrigin: "anonymous",
       defer: true,
     };
@@ -26,10 +26,10 @@ export default function Utterance() {
     // Timeout needed for stability
     setTimeout(() => {
       containerRef.current.appendChild(utterances);
-    }, 150);
+    }, 300);
     // Prevent duplicating the comment box
     containerRef.current.innerHTML = "";
-  }, [theme]);
+  }, [colorMode]);
 
   return <div ref={containerRef} />;
 }

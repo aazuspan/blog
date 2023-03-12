@@ -8,7 +8,7 @@ summary: Slope, aspect, and hillshading are ubiquitous in spatial analysis, but 
 
 There are plenty of tools to calculate slope, aspect, and hillshading from elevation data, but if you've ever been curious about *how* they're calculated, this post goes through the process of implementing those algorithms from scratch in Python using just Numpy.
 
-# Elevation Data
+## Elevation Data
 
 Terrain algorithms won't do much good without elevation data to apply them to, so the first thing we'll do is to grab some of that. Specifically, we'll download a digital elevation model (DEM) over Mount St. Helens from [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/). Using STAC (via [pystac-client](https://github.com/stac-utils/pystac-client)) will allow us to quickly find the asset we need, and the [stackstac](https://github.com/gjoseph92/stackstac) package will make it easy to download and clip it into a 2D Numpy array.
 
@@ -71,7 +71,7 @@ plt.colorbar()
     
 
 
-# Slope
+## Slope
 
 The concept of slope is simple: How much does elevation change within an area? Steep areas have lots of elevation change over a short distance while flat areas have very little. However, applying that concept to a 2D array raises the question, how do we define change within an area?
 
@@ -86,7 +86,7 @@ $$
 
 Let's break that equation down by calculating the slope of a single pixel.
 
-## One Pixel at a Time
+### One Pixel at a Time
 
 Imagine we want to calculate slope for the center pixel of a 3x3 pixel neighborhood $w$ with the following elevations:
 
@@ -111,7 +111,7 @@ for (y, x), z in np.ndenumerate(w):
     
 
 
-### East-West Gradient
+#### East-West Gradient
 
 The first term in the Horn algorithm, the east-west gradient $\frac{dz}{dx}$, describes how elevation changes between the east and west side of the pixel neighborhood. To solve it, we'll break it down into the change in elevation $dz$ over the horizontal distance $dx$.
 
@@ -147,7 +147,7 @@ Now we can calculate $\frac {dz}{dx}$, the change in elevation over the $x$ dime
 dz_dx = dz / dx
 ```
 
-### North-South Gradient
+#### North-South Gradient
 
 The second term in the Horn algorithm, the north-south gradient $\frac{dz}{dy}$, describes how elevation changes between the north and south side of the pixel neighborhood. It's solution is nearly identical to the east-west gradient, after swapping in the appropriate pixels.
 
@@ -176,7 +176,7 @@ The last step in calculating the north-south gradient is to divide the change in
 dz_dy = dz / dy
 ```
 
-### Putting It Together
+#### Putting It Together
 
 With the east-west and north-south gradients calculated, $\frac{dz}{dx}$ and $\frac{dz}{dy}$ respectiely, solving the Horn algorithm is straightforward. Just plug the two solved terms into the original equation.
 
@@ -230,7 +230,7 @@ pixel_slope(w, 30)
 
 With the fundamentals of Horn's algorithm down, the challenge now is simply to calculate it for each pixel.
 
-## Scaling Up
+### Scaling Up
 
 To calculate slope from our elevation data, we'll iterate over each row and column in the DEM, grab the 3x3 window of neighboring pixels, use the `pixel_slope` function to calculate the slope of the center pixel, and store the result in an empty `slope` array.
 
@@ -281,7 +281,7 @@ plt.colorbar()
     
 
 
-# Aspect
+## Aspect
 
 Aspect is closely related to slope, describing orientation rather than steepness. Since we've already implemented the Horn slope algorithm, we'll use that for calculating aspect as well, with the following equation.
 
@@ -347,7 +347,7 @@ plt.colorbar()
 
 
 
-# Hillshading
+## Hillshading
 
 With slope and aspect calculated, generating hillshading to visualize the terrain is simple.
 
@@ -392,7 +392,7 @@ plt.imshow(hs, cmap="Greys_r")
     
 
 
-# Wrapping Up
+## Wrapping Up
 
 Now that we know how to implement terrain algorithms from scratch, the next step is to uninstall QGIS, WhiteboxTools, GDAL, and any other geospatial tools we no longer need!
 

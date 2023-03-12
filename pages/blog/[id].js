@@ -8,8 +8,9 @@ import Date from "../../components/date";
 import Layout from "../../components/layout";
 import CodeBlock from "../../components/codeblock";
 import Utterance from "../../components/utterance";
-import styles from "../../styles/blog_post.module.css";
+import BackToTopButton from "../../components/back_to_top_button";
 import { getPostPaths, getParsedPost } from "../../utils/posts";
+import { Heading, Text } from "@chakra-ui/react";
 
 export async function getStaticPaths() {
   const paths = getPostPaths().map((filename) => ({
@@ -37,7 +38,7 @@ export default function Post({ markdown, metadata }) {
   return (
     <Layout title={metadata.title} description={metadata.summary}>
       <article>
-        <h1 className={styles.title}>{metadata.title}</h1>
+        <Heading as="h1">{metadata.title}</Heading>
         <small>
           <Date dateString={metadata.date} />
         </small>
@@ -45,13 +46,23 @@ export default function Post({ markdown, metadata }) {
           skipHtml={false}
           remarkPlugins={[remarkMath, remarkGfm]}
           rehypePlugins={[rehypeKatex, rehypeRaw]}
-          components={{ code: CodeBlock }}
+          components={{
+            code: CodeBlock,
+            p: ({ children }) => <Text my={18}>{children}</Text>,
+            h1: ({ children }) => <Heading as="h1">{children}</Heading>,
+            h2: ({ children }) => <Heading as="h2">{children}</Heading>,
+            h3: ({ children }) => <Heading as="h3">{children}</Heading>,
+            h4: ({ children }) => <Heading as="h4">{children}</Heading>,
+            h5: ({ children }) => <Heading as="h5">{children}</Heading>,
+            h6: ({ children }) => <Heading as="h6">{children}</Heading>,
+          }}
         >
           {markdown}
         </ReactMarkdown>
       </article>
       <br />
       <hr />
+      <BackToTopButton />
       <Utterance />
     </Layout>
   );

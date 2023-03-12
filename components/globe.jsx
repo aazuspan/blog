@@ -1,19 +1,20 @@
 import { useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import * as colors from '../styles/colors.module.scss';
-import { useContext } from "react";
-import { ThemeContext } from "./theme";
+import { useColorModeValue, useTheme, VStack } from "@chakra-ui/react";
 
 function GlobeMesh() {
-  const { theme } = useContext(ThemeContext);
+  const theme = useTheme();
   const mesh = useRef(null);
   const { mouse } = useThree();
 
-  const accent = theme === "dark" ? colors.accentDark : colors.accentLight;
+  const accent = useColorModeValue(
+    theme.colors.brand.light,
+    theme.colors.brand.dark
+  );
 
   useFrame((state, delta) => {
-      mesh.current.rotation.y += (mouse.x / window.innerWidth) * 1.5;
-      mesh.current.rotation.x += delta * 0.05;
+    mesh.current.rotation.y += (mouse.x / window.innerWidth) * 1.5;
+    mesh.current.rotation.x += delta * 0.05;
   });
 
   return (
@@ -25,14 +26,15 @@ function GlobeMesh() {
 }
 
 export default function Globe() {
-  const { theme } = useContext(ThemeContext);
-  const background = theme === "dark" ? colors.backgroundDark : colors.backgroundLight;
+  const background = useColorModeValue("white", "black");
 
   return (
-    <Canvas>
-      <fog attach="fog" args={[background, 3.5, 5.5]} />
-      <directionalLight color="#fff" intensity={1} />
-      <GlobeMesh />
-    </Canvas>
+    <VStack zIndex="hide" width="100%">
+      <Canvas title="Globe">
+        <fog attach="fog" args={[background, 3.5, 5.5]} />
+        <directionalLight color="#fff" intensity={1} />
+        <GlobeMesh />
+      </Canvas>
+    </VStack>
   );
 }

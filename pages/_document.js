@@ -1,18 +1,13 @@
+import { ColorModeScript } from "@chakra-ui/react";
 import { Html, Head, Main, NextScript } from "next/document";
+import theme from "../utils/theme";
 
 export default function Document() {
   return (
     <Html lang="en">
-      <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Quicksand&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
-
+      <Head></Head>
       <body>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Main />
         <NextScript />
       </body>
