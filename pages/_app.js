@@ -24,7 +24,7 @@ export default function App({ Component, pageProps, router }) {
       >
         <Header />
         <VStack pt={6} flex={1} align="stretch">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={router.route}
               initial={{ x: 300, opacity: 0 }}
