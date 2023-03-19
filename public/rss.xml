@@ -4,10 +4,17 @@
         <title>Blog - Aaron Zuspan</title>
         <link>https://aazuspan.dev</link>
         <description>Blog posts on geospatial tech.</description>
-        <lastBuildDate>Wed, 15 Mar 2023 04:46:57 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 19 Mar 2023 22:36:44 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <copyright>All rights reserved 2023, Aaron Zuspan</copyright>
+        <item>
+            <title><![CDATA[Guitars, Microchips, and Assembly]]></title>
+            <link>https://aazuspan.dev/blog/fv1</link>
+            <guid>https://aazuspan.dev/blog/fv1</guid>
+            <pubDate>Sat, 18 Mar 2023 00:00:00 GMT</pubDate>
+            <description><![CDATA[Witness the descent of a high-level geospatial programmer into the depths of low-level digital signal processing and embedded assembly.]]></description>
+        </item>
         <item>
             <title><![CDATA[Cellular Flood]]></title>
             <link>https://aazuspan.dev/blog/cellular_flood</link>

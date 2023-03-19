@@ -11,6 +11,8 @@ import Utterance from "../../components/utterance";
 import BackToTopButton from "../../components/back_to_top_button";
 import { getPostPaths, getParsedPost } from "../../utils/posts";
 import { Heading, Text } from "@chakra-ui/react";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 export async function getStaticPaths() {
   const paths = getPostPaths().map((filename) => ({
@@ -48,6 +50,11 @@ export default function Post({ markdown, metadata }) {
           rehypePlugins={[rehypeKatex, rehypeRaw]}
           components={{
             code: CodeBlock,
+            img: ({ src, alt }) => (
+              <Zoom>
+                <img src={src} alt={alt} />
+              </Zoom>
+            ),
             p: ({ children }) => <Text my={18}>{children}</Text>,
             h1: ({ children }) => <Heading as="h1">{children}</Heading>,
             h2: ({ children }) => <Heading as="h2">{children}</Heading>,
