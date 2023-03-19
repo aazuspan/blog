@@ -14,3 +14,8 @@ code {
   background-color: transparent !important;
   font-family: Menlo, Monaco, "Courier New", monospace !important;
 }
+
+
+div [data-rmiz-modal-overlay="visible"] {
+  background-color: rgb(0, 0, 0, 0.5);
+}

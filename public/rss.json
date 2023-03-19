@@ -6,6 +6,13 @@
     "description": "Blog posts on geospatial tech.",
     "items": [
         {
+            "id": "https://aazuspan.dev/blog/fv1",
+            "url": "https://aazuspan.dev/blog/fv1",
+            "title": "Guitars, Microchips, and Assembly",
+            "summary": "Witness the descent of a high-level geospatial programmer into the depths of low-level digital signal processing and embedded assembly.",
+            "date_modified": "2023-03-18T00:00:00.000Z"
+        },
+        {
             "id": "https://aazuspan.dev/blog/cellular_flood",
             "url": "https://aazuspan.dev/blog/cellular_flood",
             "title": "Cellular Flood",
