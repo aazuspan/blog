@@ -1,4 +1,4 @@
-My [personal blog](https://aazuspan.dev) built with [Next.js](https://nextjs.org/) and [Chakra UI](https://chakra-ui.com/) (plus a little bit of [Three.js](https://threejs.org/)).
+My [personal blog](https://www.aazuspan.dev) built with [Next.js](https://nextjs.org/) and [Chakra UI](https://chakra-ui.com/) (plus a little bit of [Three.js](https://threejs.org/)).
 
 ## Developing
 
