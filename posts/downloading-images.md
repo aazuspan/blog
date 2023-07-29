@@ -1,7 +1,7 @@
 ---
 title: What's the Fastest Way to Download an Earth Engine Image?
 category: Blog
-tags: python, wxee, benchmarking, earth-engine
+tags: python, benchmarking, earth-engine
 date: "2023-04-10"
 summary: How do urllib, requests, and fsspec compare for download time when grabbing an image from Earth Engine? Let's run some benchmarking to figure out.
 ---

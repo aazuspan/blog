@@ -1,7 +1,7 @@
 ---
 title: Cellular Automata in Earth Engine
 category: Blog
-tags: earth-engine, cellular-automata, javascript, game-of-life
+tags: earth-engine, cellular-automata, javascript
 summary: Conway's Game of Life is cool. Earth Engine is cool. What if we put them together?
 date: "2022-07-16"
 ---

@@ -1,7 +1,7 @@
 ---
 title: Guitars, Microchips, and Assembly
 category: Blog
-tags: dsp, guitar, assembly
+tags: audio
 date: "2023-03-18"
 summary: Witness the descent of a high-level geospatial programmer into the depths of low-level digital signal processing and embedded assembly.
 ---
