@@ -55,6 +55,7 @@ export default function TagContainer({ tags, activeTags, setActiveTags }) {
           <Wrap spacing={2}>
             {tags.map((tag) => (
               <TagButton
+                key={tag}
                 tag={tag}
                 activeTags={activeTags}
                 setActiveTags={setActiveTags}

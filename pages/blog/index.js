@@ -42,7 +42,7 @@ export default function Blog({ posts }) {
         <VStack pt={3} spacing={4} align="stretch">
           {      posts.map(({ id, date, title, summary, tags }) => {
         return (
-          <Collapse in={shouldShowPost(tags, activeTags)}>
+          <Collapse key={id} in={shouldShowPost(tags, activeTags)}>
             <Divider mb={4} />
             <BlogPreview id={id} date={date} title={title} summary={summary} />
           </Collapse>
