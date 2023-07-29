@@ -1,7 +1,7 @@
 ---
 title: Terrain Algorithms from Scratch
 category: Blog
-tags: python, algorithms, terrain
+tags: python, algorithms
 date: "2022-08-05"
 summary: Slope, aspect, and hillshading are ubiquitous in spatial analysis, but how are they made? Let's implement them from scratch in Python to figure out.
 ---

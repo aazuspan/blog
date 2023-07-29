@@ -31,10 +31,11 @@ export function getSortedPosts() {
       const date = parsed.data.date;
       const title = parsed.data.title;
       const summary = parsed.data.summary;
+      const tags = parsed.data.tags.split(",").map((tag) => tag.trim());
       let thumbnail = parsed.data.thumbnail;
       thumbnail = thumbnail ? thumbnail : "/images/clouds.jpeg";
 
-      return { id, date, title, summary, thumbnail };
+      return { id, date, title, summary, tags, thumbnail };
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 

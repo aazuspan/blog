@@ -1,7 +1,7 @@
 ---
 title:  Dithering in Earth Engine
 category: Blog
-tags: earth-engine, javascript, code-editor, dithering, algorithms
+tags: earth-engine, javascript, algorithms
 date: "2022-03-19"
 summary: Dithering is an image processing technique used in retro video games to simulate shading with a single color. Let's apply it to Landsat imagery in Earth Engine.
 ---

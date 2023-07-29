@@ -1,7 +1,7 @@
 ---
 title: Optimizing Module Structure in Earth Engine
 category: Blog
-tags: earth-engine, modules, javascript, code-editor
+tags: earth-engine, javascript
 summary: Nested file structures are great for organization and terrible for import speed in Earth Engine modules. Let's figure out why and what we can do about it.
 date: "2022-06-09"
 ---
