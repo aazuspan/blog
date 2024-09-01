@@ -5,7 +5,7 @@ baseURL = "https://www.aazuspan.dev"
 theme = 'hugo-bearblog'
 
 # Basic metadata configuration for your blog.
-title = "Longitudes & Platitudes"
+title = "Longitude & Platitudes"
 copyright = "Copyright © 2024, Aaron Zuspan."
 languageCode = "en-US"
 author = "Aaron Zuspan"
@@ -31,18 +31,12 @@ ignoreErrors = ["error-disable-taxonomy"]
 
   # The path to your "favicon". This should be a square (at least 32px x 32px) png-file.
   # Hint: It's good practise to also put a "favicon.ico"-file into your "static"-folder.
-  favicon = "images/favicon.png"
-
-  # These "images" are used for the structured data templates. This will show up, when
-  # services like Twitter or Slack want to generate a preview of a link to your site.
-  # See https://gohugo.io/templates/internal#twitter-cards and
-  # https://gohugo.io/templates/internal#open-graph.
-  images = ["images/share.png"]
+  favicon = "favicon/favicon-32x32.png"
 
   # Another "title" :-). This one is used as the site_name on the Hugo's internal
   # opengraph structured data template.
   # See https://ogp.me/ and https://gohugo.io/templates/internal#open-graph.
-  title = "Longitudes & Platitudes"
+  title = "Longitude & Platitudes"
 
   # This theme will, by default, inject a made-with-line at the bottom of the page.
   # You can turn it off, but we would really appreciate if you don’t :-).
@@ -57,6 +51,9 @@ ignoreErrors = ["error-disable-taxonomy"]
 
   math = true
 
+  [params.utterances]
+    repo = "aazuspan/aazuspan.github.io"
+
   [params.author]
     name = "Aaron Zuspan"
 
@@ -64,3 +61,6 @@ ignoreErrors = ["error-disable-taxonomy"]
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+
+[[module.imports]]
+  path = "github.com/hugomods/utterances"
