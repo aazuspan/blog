@@ -3,6 +3,7 @@ title = "Cellular Flood"
 tags = ["earth-engine", "cellular-automata", "javascript"]
 description = "Let's simulate sea level rise with cellular automata in Earth Engine."
 date = "2022-08-07"
+aliases = ["/blog/cellular_flood"]
 +++
 
 I recently built [Conway's Game of Life in Earth Engine]({{% relref "/blog/gol" %}}). It was a fun experiment, but I felt like it ignored one of the coolest aspects of cellular automata in Earth Engine—easy access to petabytes of geospatial data. So I decided to build a cellular automaton that would use elevation data to roughly simulate changes in sea level.

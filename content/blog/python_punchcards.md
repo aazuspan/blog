@@ -3,6 +3,7 @@ title = "Python on Punched Cards"
 date = "2024-08-22"
 description = "Write Python like it's 1959 by encoding it onto IBM 1401 punched cards."
 tags = ["python", "algorithms"]
+aliases = ["/blog/python_punchcards"]
 +++
 
 Before AI assistants, modern IDEs, syntax highlighting, and version control, software was written by making holes in pieces of paper called punched cards. I've read the horror stories from this era - about waiting all day for a university computer to run your program just to find out one card was backwards, about repunching a card because you hit a wrong key on the keypunch machine, about reassembling an entire Fortran program line by line after dropping a deck of cards on the ground. But other than some educated guesses about binary encoding, I've never understood *how* a computer program turns into a stack of punched cards.

@@ -3,6 +3,7 @@ title = "Optimizing Module Structure in Earth Engine"
 date = "2022-06-09"
 tags = ["earth-engine", "javascript"]
 description = "Nested file structures are great for organization and terrible for import speed in Earth Engine modules. Let's figure out why and what we can do about it."
+aliases = ["/blog/nested-modules"]
 +++
 
 In a [recent blog post]({{% relref "/blog/minifying_modules" %}}), I found that shrinking an Earth Engine module's size by 75% had almost no effect on import speed in the Code Editor because most of the time was spent waiting for Earth Engine to find it, not downloading its contents. If that's the case, then is a module that's split up across multiple files much slower to import than a module contained in a single file?

@@ -3,6 +3,7 @@ title = "Cellular Automata in Earth Engine"
 tags = ["earth-engine", "cellular-automata", "javascript"]
 description = "Conway's Game of Life is cool. Earth Engine is cool. What if we put them together?"
 date = "2022-07-16"
+aliases = ["/blog/gol"]
 +++
 
 

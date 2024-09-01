@@ -3,6 +3,7 @@ title = "Patch Metrics in Earth Engine"
 tags = ["earth-engine", "javascript", "algorithms"]
 description = "Implementing common patch metrics from Fragstats, cloud-native style."
 date = "2023-08-26"
+aliases = ["/blog/patch_metrics"]
 +++
 
 Area isn't everything. Knowing how much old-growth forest, high-severity fire, elk migration corridor, etc. falls within your landscape is valuable, but often it only tells part of a story. Two fires might burn the same amount of forest, but if one torches a homogenous swath across the landscape while the other disperses over dozens of small, disconnected patches, those forests will regenerate very differently.

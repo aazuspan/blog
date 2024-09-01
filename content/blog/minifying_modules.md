@@ -3,6 +3,7 @@ title = "Should You Minify Your Earth Engine Modules?"
 description = "Websites minify code to make pages load faster, so can we speed up Earth Engine imports by minifying our modules?"
 date = "2022-06-01"
 tags = ["earth-engine", "javascript"]
+aliases = ["/blog/minifying-modules"]
 +++
 
 In this post, we'll go into the weeds on the Earth Engine module importing system to answer the question, does minifying source code speed up imports? 

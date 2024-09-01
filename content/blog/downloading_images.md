@@ -3,6 +3,7 @@ title = "What's the Fastest Way to Download an Earth Engine Image?"
 tags = ["python", "benchmarking", "earth-engine"]
 date = "2023-04-10"
 description = "How do urllib, requests, and fsspec compare for download time when grabbing an image from Earth Engine? Let's run some benchmarking to figure out."
+aliases = ["/blog/downloading-images"]
 +++
 
 There are two ways to download image data from Earth Engine--exporting to Drive or downloading from URL. Each has pros and cons, but for quickly pulling data into Python, URL downloading is the only option (just watch out for the pesky 32 Mb [file size limit](https://developers.google.com/earth-engine/apidocs/ee-image-getdownloadurl)). I built a [Python package called wxee](https://github.com/aazuspan/wxee) a while back that uses the URL download system to turn Earth Engine image collections into [xarray](https://xarray.dev/) datasets, and as part of some much-needed improvements to that package, I decided to take a closer look at the download system to see if there's any room for performance improvements. That means it's time for some benchmarking!

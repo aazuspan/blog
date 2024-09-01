@@ -3,6 +3,7 @@ title = "Type Safety and Non-Empty Tuples in Python"
 date = "2024-08-28"
 description = "Taking inspiration from Haskell to write better code with fewer bugs in Python."
 tags = ["python", "typing"]
+aliases = ["/blog/non_empty_tuples"]
 +++
 
 Say you're writing a typed Python package with a function `head` that takes a generic tuple and returns the first element. How do you implement it for type safety? Below, we'll take inspiration from Alexis King's [*Parse, Don't Validate*](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) blog post[^read-it] and statically typed languages like Haskell and OCaml to help us avoid potential runtime errors in Python.

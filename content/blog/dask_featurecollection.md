@@ -3,6 +3,7 @@ title = "Parallelizing Earth Engine feature collections with Dask"
 tags = ["earth-engine", "python"]
 date = "2024-03-16"
 description = "Download and process Earth Engine vector data in parallel with Dask."
+aliases = ["/blog/dask_featurecollection"]
 +++
 
 [Dask](https://www.dask.org/) is a Python package that allows you to easily parallelize data analysis, whether you're working with [arrays](https://docs.dask.org/en/stable/array.html), [dataframes](https://docs.dask.org/en/stable/dataframe.html), or pretty much any [other data format](https://docs.dask.org/en/stable/delayed.html). With a little effort, we can get it to work with an Earth Engine feature collection, allowing us to convert from cloud-based vector data to a client-side geodataframe with parallel requests and lazy evaluation.

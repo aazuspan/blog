@@ -3,6 +3,7 @@ title = "Guitars, Microchips, and Assembly"
 tags = ["audio", "fv1"]
 date = "2023-03-18"
 description = "Witness the descent of a Python programmer into the depths of low-level digital signal processing and embedded assembly."
+aliases = ["/blog/fv1"]
 +++
 
 My first attempts at programming were writing hacky embedded C++ to run Arduino microcontrollers, brute forcing my way through compiler errors to try to make LEDs blink and motors spin. These days I write most of my code in high-level, dynamically-typed languages, but there's still something alluring about that intersection of software and hardware - about watching your code run in the physical world.

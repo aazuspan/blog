@@ -3,6 +3,7 @@ title = "Terrain Algorithms from Scratch"
 tags = ["python", "algorithms"]
 date = "2022-08-05"
 description = "Slope, aspect, and hillshading are ubiquitous in spatial analysis, but how are they made? Let's implement them from scratch in Python to figure out."
+aliases = ["/blog/terrain_from_scratch"]
 +++
 
 There are plenty of tools to calculate slope, aspect, and hillshading from elevation data, but if you've ever been curious about *how* they're calculated, this post goes through the process of implementing those algorithms from scratch in Python using just Numpy.
