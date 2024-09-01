@@ -13,4 +13,5 @@ menu = "main"
 
 ## Posters and Talks
 
-- [From Ashes to Logs: Long-term Monitoring of Post-fire Harvests in the Western United States](publications/oregon_postfire_2023_poster.pdf), Poster presented at the Oregon Post-fire Symposium, February 2023.
+- [From Ashes to Logs: Long-term Monitoring of Post-fire Harvests in the Western United States](/publications/oregon_postfire_2023_poster.pdf), Poster presented at the Oregon Post-fire Symposium, February 2023.
+
