@@ -47,7 +47,7 @@ essay: paragraph+
 # A paragraph is made of 1 or more sentences
 paragraph: sentence+
 
-# A sentence is made of 1 or more words seperated by whitespace, followed by punctuation
+# A sentence is made of 1 or more words separated by whitespace, followed by punctuation
 sentence: WORD (" " WORD)* PUNCTUATION
 
 # Punctuation matches the characters .!?

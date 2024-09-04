@@ -124,7 +124,7 @@ Here's the result, showing 50 time steps with +1m of sea level change per step o
 
 ## Polishing and Packaging
 
-With the core cellular automaton built, I spent a while tweaking the visualization to make it more visually impressive. I won't go into all the details, but I used the ocean mask and elevation data to color water based on depth, blended that over a hillshade, and overlayed a settlement layer on top to give some spatial context. You can check out the [final code here](https://code.earthengine.google.com/cefc8aa7e2c4afc4f7d3cfb85103466d), which also includes the UI elements for the app.
+With the core cellular automaton built, I spent a while tweaking the visualization to make it more visually impressive. I won't go into all the details, but I used the ocean mask and elevation data to color water based on depth, blended that over a hillshade, and overlaid a settlement layer on top to give some spatial context. You can check out the [final code here](https://code.earthengine.google.com/cefc8aa7e2c4afc4f7d3cfb85103466d), which also includes the UI elements for the app.
 
 {{<figure src="/images/posts/cellular_flood/gibraltar.gif" alt="Simulated sea level rise in the Strait of Gibraltar">}}
 
