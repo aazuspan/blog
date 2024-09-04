@@ -23,7 +23,7 @@ I won't go into detail on [the code](https://github.com/aazuspan/audiojpeg) sinc
 
 If you picture the samples in an audio file as a one long line of 60 square blocks, we'll turn it into an image by rearranging those blocks to build a big cube that's 4 blocks long, 5 blocks wide, stacked 3 blocks high (red, green, and blue channels). 
 
-Our blocks aren't numbered, so we'll need a repeatable stategy for what order we place blocks that we can reverse to recreate the original pattern. Numpy offers two options here: **C order** and **Fortran order**. C order places rows first, then columns, then repeats for the next layer. Fortran order builds stacks of 3 blocks, then arranges those into columns, and repeats that process for each row.
+Our blocks aren't numbered, so we'll need a repeatable strategy for what order we place blocks that we can reverse to recreate the original pattern. Numpy offers two options here: **C order** and **Fortran order**. C order places rows first, then columns, then repeats for the next layer. Fortran order builds stacks of 3 blocks, then arranges those into columns, and repeats that process for each row.
 
 Either way will work, but it turns out that there are some interesting implications for compressed audio quality. JPEG compression works in chunks of pixels[^jpeg], so each sample will be affected by the samples it's grouped next to. C order is more likely to place samples that are close together in time next to each other, reducing audio artifacts. Fortran order looks cooler, so obviously that's what I went with.
 

@@ -63,7 +63,7 @@ If each instance of `require` adds some overhead to import time, the fastest imp
 
 Watching network traffic when importing the root file of the chained module revealed that six synchronous requests were made. Because each submodule contained the path to the next, the final submodule could only be imported after all the previous submodules were resolved.
 
-{{<figure src="/images/posts/nested_modules/nested_test_deep.png" alt="Browser developer tools showing 6 requests occuring one after the other" caption="Network requests being made for each module, one at a time.">}}
+{{<figure src="/images/posts/nested_modules/nested_test_deep.png" alt="Browser developer tools showing 6 requests occurring one after the other" caption="Network requests being made for each module, one at a time.">}}
 
 Averaged over 10 runs, it took **3.24 seconds** to fully import the chained module.
 
@@ -101,7 +101,7 @@ In the interest of organization, I accidentally created a chained set of imports
 
 I decided to simplify the structure to a single, monolithic module, moving all of the code into `styles.` The result was a **72% reduction** in import time, down to an average of only **0.551 seconds**.
 
-{{<figure src="/images/posts/nested_modules/nested_modules_brain.jpg" alt="A meme of a brain expanding. Alongside, the caption goes from 'Putting all your code in one file because its easy', to 'Splitting your code up into submodules', to 'Building a complex network of nested sub-modules', to 'Realizing thats slow and putting all your code back in one file.'">}}
+{{<figure src="/images/posts/nested_modules/nested_modules_brain.jpg" alt="A meme of a brain expanding. Alongside, the caption goes from 'Putting all your code in one file because its easy', to 'Splitting your code up into submodules', to 'Building a complex network of nested sub-modules', to 'Realizing that's slow and putting all your code back in one file.'">}}
 
 So, will I build all of my Earth Engine modules in a single file from now on? Probably not. Being able to organize complex projects across multiple files dramatically improves maintainability, and that may be worth the cost in performance. However, I will pay closer attention to module structure, and avoid chained imports like I had in `snazzy` whenever possible. 
 

@@ -6,7 +6,7 @@ description = "Dithering is an image processing technique used in retro video ga
 aliases = ["/blog/dithering"]
 +++
 
-Ever wanted to use the power of distributed Earth Engine processing to make 16-bit multispectral imagery from a $130 million satellite platform look like it was taken by a 1989 GameBoy camera? Now you can.
+Ever wanted to use the power of distributed Earth Engine processing to make 16-bit multispectral imagery from a $130 million satellite platform look like it was taken by a 1989 Game Boy camera? Now you can.
 
 ## What is Dithering?
 

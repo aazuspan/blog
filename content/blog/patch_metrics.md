@@ -6,7 +6,7 @@ date = "2023-08-26"
 aliases = ["/blog/patch_metrics"]
 +++
 
-Area isn't everything. Knowing how much old-growth forest, high-severity fire, elk migration corridor, etc. falls within your landscape is valuable, but often it only tells part of a story. Two fires might burn the same amount of forest, but if one torches a homogenous swath across the landscape while the other disperses over dozens of small, disconnected patches, those forests will regenerate very differently.
+Area isn't everything. Knowing how much old-growth forest, high-severity fire, elk migration corridor, etc. falls within your landscape is valuable, but often it only tells part of a story. Two fires might burn the same amount of forest, but if one torches a homogeneous swath across the landscape while the other disperses over dozens of small, disconnected patches, those forests will regenerate very differently.
 
 {{<figure src="/images/posts/patch_metrics/lsm_burned_forest.jpg" alt="Burned forest with small patches of live trees around a lake">}}
 
@@ -80,11 +80,11 @@ print("Mean patch area:", patches.aggregate_mean("area"));
 print("Largest patch:", patches.aggregate_array("area").reduce(ee.Reducer.max()))
 ```
 
-Those 592 patches consitute 1,050 hectares of unburned forest. The largest patch is 167 hectares, but on average they are only 1.8 hectares in size.
+Those 592 patches constitute 1,050 hectares of unburned forest. The largest patch is 167 hectares, but on average they are only 1.8 hectares in size.
 
 ### Core Area
 
-The habitat suitability of a patch may depend on more than just its size. While some wildlife species thrive in the margins between different habitat types, others requires large, homogenous areas to nest and hunt. [Core area](https://fragstats.org/index.php/fragstats-metrics/core-area-metrics/p1-core-area) describes the size of a patch after excluding edges, and we can calculate it by 1) using a neighborhood reducer to find pixels that border multiple cover types (i.e. the edge between burned and unburned patches), 2) masking those pixels in the original unburned map, and 3) calculating the area of the remaining core pixels. The first two steps are implemented below:
+The habitat suitability of a patch may depend on more than just its size. While some wildlife species thrive in the margins between different habitat types, others requires large, homogeneous areas to nest and hunt. [Core area](https://fragstats.org/index.php/fragstats-metrics/core-area-metrics/p1-core-area) describes the size of a patch after excluding edges, and we can calculate it by 1) using a neighborhood reducer to find pixels that border multiple cover types (i.e. the edge between burned and unburned patches), 2) masking those pixels in the original unburned map, and 3) calculating the area of the remaining core pixels. The first two steps are implemented below:
 
 ```javascript
 var edge = unburned.reduceNeighborhood({
