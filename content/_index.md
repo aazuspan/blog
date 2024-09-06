@@ -2,7 +2,7 @@
 # This title is used as the og:title on Hugo's internal
 # opengraph structured data template on the home page.
 # See https://ogp.me/ and https://gohugo.io/templates/internal#open-graph.
-title = "Longitude & Platitudes"
+title = "Signals & Pixels"
 +++
 
 # About Me
@@ -12,3 +12,4 @@ I'm **Aaron Zuspan**, a research fellow at the U.S. Forest Service Pacific North
 - 🐍 [Python](/tag/python)
 - 🧮 [Algorithms](/tag/algorithms)
 - ⚙️ [Earth Engine](/tag/earth-engine)
+- 🔊 [Audio](/tag/audio)
