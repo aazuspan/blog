@@ -1,3 +1,4 @@
 public/**
+resources/**
 .venv/**
 .hugo_build.lock

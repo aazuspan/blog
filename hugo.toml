@@ -65,3 +65,14 @@ ignoreErrors = ["error-disable-taxonomy"]
 
 [[module.imports]]
   path = "github.com/hugomods/utterances"
+
+
+# Mount static and assets directories to allow webp conversion from static folders.
+# https://discourse.gohugo.io/t/conversion-to-webp/50347
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+
+[[module.mounts]]
+source = 'static'
+target = 'assets'
