@@ -148,7 +148,9 @@ With a tentative language design in mind, here's my loose roadmap:
 1. Put everything together to compile Arpeggio programs into songs.
 1. Maybe a language server?
 
+In [Part 2]({{% relref "/blog/dsl_pt2" %}}), I outline some basic music theory from a programmer's perspective, which will be needed to build Arpeggio.
+
 [^config]: Or maybe prefixed with `#`, or assigned as reserved variables, or enclosed in parentheses. I've changed it three times while writing this, and I'll probably change it again before it's done.
 [^tracks]: There will probably be a relatively low limit on the number of tracks to keep things fast. This isn't going to replace your [DAW](https://en.wikipedia.org/wiki/Digital_audio_workstation).
-[^music]: I plan to write a quick "programmer's guide to basic music theory" as a reference and to solidify my own understanding, but for now the important takeaway is that Arpeggio will use a limited subset of musical notes that generally sound good together.
+[^music]: I wrote a ["programmer's guide to music theory"]({{% relref "/blog/dsl_pt2" %}}) that goes into more depth on the terminology, but the important takeaway is that Arpeggio will use a limited subset of musical notes that generally sound good together.
 [^numerals]: Usually lowercase Roman numerals are used for minor chords and vice versa, but in Arpeggio they'll be case insensitive since we can infer the exact chord from the key and interval.
