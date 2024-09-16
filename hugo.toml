@@ -2,7 +2,7 @@
 # Set to the URL for your site
 baseURL = "https://www.aazuspan.dev"
 
-theme = 'hugo-bearblog'
+theme = ['hugo-video', 'hugo-bearblog']
 
 # Basic metadata configuration for your blog.
 title = "Signals & Pixels"
