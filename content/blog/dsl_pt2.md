@@ -6,7 +6,7 @@ date = "2024-09-04"
 +++
 
 
-I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that compiles code into music. In [Part 1](({{% relref "/blog/dsl_pt1" %}})), I outlined the basic language design and syntax. Here, I'm going to do a very shallow dive into music theory from a programmer's perspective, focusing on the terms and concepts needed to build the music backend that powers Arpeggio.
+I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that compiles code into music. In [Part 1]({{% relref "/blog/dsl_pt1" %}}), I outlined the basic language design and syntax. Here, I'm going to do a very shallow dive into music theory from a programmer's perspective, focusing on the terms and concepts needed to build the music backend that powers Arpeggio.
 
 *Disclaimer: Music theory is a huge field of study that's filled with complexity and ambiguity, which I'm going to vastly oversimplify down to the basic math and patterns that I can understand. Apologies to any real musicians who stumble onto this.*
 
@@ -61,23 +61,21 @@ A **chord** is a collection of notes played together. The most common chord in w
 In addition to the frequency, we also need to know how long to play each note for. This depends on the note length, measured in fractions of a whole note, and the **tempo** and **time signature** of the song. In a song with 60 beats-per-minute (BPM) in 4/4 time[^4-4], a single quarter note lasts for 1 second.
 
 ```python
-class NoteDuration:
-    fraction: Fraction
+from fractions import Fraction
 
-    @classmethod
+class Duration(Fraction):
     def to_millis(cls, bpm: int, beats_per_measure: int = 4) -> float:
         """Return the number of milliseconds this note duration lasts."""
-        return float((60_000 * cls.fraction / bpm) * beats_per_measure)
+        return float((60_000 * float(self) / bpm) * beats_per_measure)
 
-class QuarterNote(NoteDuration):
-    fraction = Fraction(1, 4)
+QuarterNote = Duration(1, 4)
 
 assert QuarterNote.to_millis(bpm=60) == 1000
 ```
 
 ## Wrapping Up
 
-And that's it! We can define a song with a key, use modes and intervals to find semitones, and use semitones and beats to calculate notes and chords. All that's left is turning frequencies and durations into audio that we can hear. Coming up in Part 3!
+And that's it! We can define a song with a key, use modes and intervals to find semitones, and use semitones and beats to calculate notes and chords. All that's left is turning frequencies and durations into audio that we can hear, which you can read about in [Part 3]({{% relref "/blog/dsl_pt3" %}})!
 
 [^standard-pitch]: Not everyone agrees on [this](https://en.wikipedia.org/wiki/A440_(pitch_standard)).
 [^tonal-music]: Not everyone agrees on [this](https://en.wikipedia.org/wiki/Microtone_(music)).
