@@ -7,8 +7,8 @@
   {{- $src := $u.String -}}
   {{- if not $u.IsAbs -}}
     {{- with or (.Page.Resources.Get $u.Path) (resources.Get $u.Path) -}}
-      <!-- SVG can't be converted to WebP -->
-      {{ if eq .MediaType.SubType "svg" }}
+      <!-- Don't convert SVG or GIF to WebP -->
+      {{ if in (slice "svg" "gif") .MediaType.SubType}}
         {{- $src = .RelPermalink -}}
       {{- else -}}
         <!--  Convert images to WebP -->
