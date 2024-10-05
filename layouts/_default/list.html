@@ -2,12 +2,22 @@
 <content>
     <h1>Blog</h1>
     {{ if .Data.Singular }}
-    <h3 style="margin-bottom:0">Filtering for "{{ .Title }}"</h3>
     <small>
-        <a href="{{ "blog" | relURL }}">Remove filter</a>
+        <div>
+            Filtering <a href="{{ "blog" | relURL }}">all posts</a> with topic <b>{{ .Title }}</b>
+        </div>
+    </small>
+    {{else}}
+    <small>
+        <div>
+            <b>Filter by topic: </b>
+            {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+                <a href="/tag/{{ $name | urlize }}">{{ $name | humanize }}</a> {{ $taxonomy.Count }} ·
+            {{end}}
+        </div>
     </small>
     {{ end }}
-
+    <hr>
 
     <ul class="blog-posts">
         {{ range .Pages }}
@@ -19,15 +29,5 @@
         {{ end }}
     </ul>
 
-    {{ if .Data.Singular }}
-    {{else}}
-    <small>
-        <div>
-            {{ range .Site.Taxonomies.tags }}
-            <a href="{{ .Page.Permalink }}">#{{ .Page.Title }}</a>&nbsp;
-            {{ end }}
-        </div>
-    </small>
-    {{ end }}
 </content>
 {{ end }}
