@@ -5,7 +5,7 @@ description = "Load icons from GStatic or data URLs."
 date = "2024-10-08"
 +++
 
-Some UI elements in Earth Engine (labels and buttons) support image icons, but the feature has some quirks that aren't well-documented. Here's a quick look at three ways you can implement icons in an Earth Engine app.
+Some UI elements in Earth Engine (labels and buttons) support image icons, but the feature has some quirks that aren't well-documented. Here's a quick look at four ways you can implement icons in an Earth Engine app.
 
 *This post was inspired by a [tweet](https://twitter.com/jstnbraaten/status/1515109490734997505) from [@jstnbraaten](https://twitter.com/jstnbraaten) that I have to dig up every time I want to use this feature.*
 
@@ -56,8 +56,26 @@ var url = ee.Blob("gs://ee-icon-url/image.txt").string();
 url.evaluate(function(evaluated_url) {
     var button = ui.Button({
         imageUrl: evaluated_url
-    })
+    });
 });
 ```
 
 Note that for this we need to create the UI asynchronously here since we're waiting on a server-side `ee.Blob`.
+
+## Reading From a Feature Collection
+
+Another way to encode long data URLs for asynchronous reading is by storing them as features in a collection asset. I encoded [this GIF](https://upload.wikimedia.org/wikipedia/commons/a/a9/Rotating_earth_%28large%29_transparent.gif) into base64, saved it locally in a CSV, and uploaded that to a Feature Collection. Just like a GCS blob, this can then be evaluated asynchronously into a UI element:
+
+<center><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Rotating_earth_%28large%29_transparent.gif" width=48/></center>
+
+```js
+var url = ee.FeatureCollection("projects/ee-aazuspan/assets/icon_test").first().get("url");
+  
+url.evaluate(function(evaluated_url) {
+    var button = ui.Button({
+        imageUrl: evaluated_url
+    });
+});
+```
+
+If someone was ambitious, they could encode an entire icon library into data URLs and store them as features that could be accessed by ID. With some quick code to wrap searching and loading icon URLs, you could make a pretty slick package for handling icons in Earth Engine...
