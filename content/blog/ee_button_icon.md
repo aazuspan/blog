@@ -79,3 +79,5 @@ url.evaluate(function(evaluated_url) {
 ```
 
 If someone was ambitious, they could encode an entire icon library into data URLs and store them as features that could be accessed by ID. With some quick code to wrap searching and loading icon URLs, you could make a pretty slick package for handling icons in Earth Engine...
+
+*Update: I did this. You can now add any of the ~2k free Font Awesome icons to your Earth Engine widgets using the [snazzy](https://github.com/aazuspan/snazzy?tab=readme-ov-file#font-awesome-icons) package.*
