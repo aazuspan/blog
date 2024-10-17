@@ -89,7 +89,11 @@ How fast would we need to travel each day to keep up with our 13.5 hours of dayl
 If you're curious, you can checkout out the [analysis code here](https://github.com/aazuspan/day-length-analysis).
 
 [^daylight-hours]: Approximately. Like all things in geodesy, getting 95% of the way to the right answer is pretty easy while the last 5% is brutally complex. 
+
 [^hour-angle]: Which I would explain if I understood it.
+
 [^haversine]: Earth isn't a sphere, so this is another convenient geodetic approximation.
+
 [^longitude]: Who needs longitude?
+
 [^equinox]: Tied with the vernal equinox, when we'll need to make the opposite jump from the South Pole to the North Pole.
