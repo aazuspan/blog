@@ -4,7 +4,8 @@ on:
         branches:
         - main
         paths:
-        - 'content/**.[md|html]'
+        - 'content/**/*.md'
+        - 'content/**/*.html'
 
     workflow_dispatch:
 
