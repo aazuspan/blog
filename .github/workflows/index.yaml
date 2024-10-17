@@ -2,7 +2,7 @@ name: Google Indexing
 on:
     push:
         branches:
-        - master
+        - main
         paths:
         - 'content/**'
 jobs:

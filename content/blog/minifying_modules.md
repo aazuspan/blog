@@ -79,7 +79,6 @@ On average, the lightweight, minified `msslib` module takes **686 milliseconds**
 
 <iframe src="/images/posts/minifying_modules/minified_total_time.html" width="800" height="360" frameBorder="0"></iframe>
 
-
 ## What Happened?
 
 Why didn't request times decrease by 76% alongside our file size? Well, of that total request time, only about 5% is spent actually downloading the minified code. The rest is spent waiting for the Earth Engine to process and serve the module. Minifying *did* consistently decrease download times by a factor of almost 10, but with server time practically unaffected (and occasionally increased) by minifying, it failed to make a meaningful dent in the total request time.
