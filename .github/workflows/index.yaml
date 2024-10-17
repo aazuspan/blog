@@ -4,7 +4,10 @@ on:
         branches:
         - main
         paths:
-        - 'content/**'
+        - 'content/**.[md|html]'
+
+    workflow_dispatch:
+
 jobs:
   google-indexing:
     runs-on: ubuntu-latest
