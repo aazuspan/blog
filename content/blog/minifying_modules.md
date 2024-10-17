@@ -10,7 +10,6 @@ In this post, we'll go into the weeds on the Earth Engine module importing syste
 
 Quick answer? A little bit, but there's another bottleneck that makes file size almost irrelevant.
 
-
 ## What is Minifying?
 
 In web development, source code files are usually minified before they're distributed, removing comments and extra whitespace in order to compress file sizes and speed up page loading. Your browser doesn't care how nicely formatted and human-readable your code is, so why waste the time and energy to download characters that won't affect execution?
