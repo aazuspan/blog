@@ -2,7 +2,5 @@
 <br/>
 {{- partial "social_links.html" . -}}
 <small>
-  <p>
-    {{ .Site.Params.author.name }} {{ now.Format "2006" }}. No rights reserved, but it felt weird leaving this blank.
-  </p>
+  <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">© <span property="cc:attributionName">{{ .Site.Params.author.name }}</span> {{ now.Format "2006" }} · Code snippets [<a href={{ (default "LICENSE" ) | relURL }}>MIT license</a>] · Everything else [<a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0</a>]</p> 
 </small>
