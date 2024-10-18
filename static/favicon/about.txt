@@ -1,6 +1,0 @@
-This favicon was generated using the following font:
-
-- Font Title: Jaro
-- Font Author: Copyright 2023 The Jaro Project Authors (https://github.com/agyeiarcher/Jaro)
-- Font Source: https://fonts.gstatic.com/s/jaro/v6/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SlCsNP3VpQ_a.ttf
-- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))
