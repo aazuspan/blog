@@ -1,7 +1,7 @@
 +++
-title = "What's a Parity Drive?"
+title = "Exploring Parity in Python"
 date = "2024-10-19"
-description = "Exploring fault tolerant storage algorithms with with code."
+description = "Testing out a fault tolerant storage algorithm with code."
 tags = ["python", "algorithms"]
 +++
 
