@@ -52,7 +52,7 @@ ignoreErrors = ["error-disable-taxonomy"]
   math = true
 
   [params.utterances]
-    repo = "aazuspan/aazuspan.github.io"
+    repo = "aazuspan/blog"
 
   [params.author]
     name = "Aaron Zuspan"
