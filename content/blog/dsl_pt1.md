@@ -1,6 +1,6 @@
 +++
 title = "Building Arpeggio Pt. 1: Language Design"
-tags = ["python", "audio", "arpeggio"]
+tags = ["python", "audio", "arpeggio", "programming-languages"]
 description = "Planning a domain-specific language that compiles to music."
 date = "2024-09-03"
 +++

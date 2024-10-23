@@ -1,6 +1,6 @@
 +++
 title = "Building Arpeggio Pt. 2: Music Theory for Programmers"
-tags = ["python", "audio", "arpeggio"]
+tags = ["python", "audio", "arpeggio", "programming-languages"]
 description = "Turning notes into code."
 date = "2024-09-04"
 +++

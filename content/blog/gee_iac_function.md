@@ -1,6 +1,6 @@
 +++
 title = "Deploying Earth Engine Cloud Functions using IaC"
-tags = ["python", "earth-engine", "cloud"]
+tags = ["python", "earth-engine", "google-cloud"]
 description = "Using infrastructure-as-code to reproducibly deploy Earth Engine apps as serverless functions."
 date = "2024-09-27"
 +++

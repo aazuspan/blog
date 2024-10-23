@@ -1,6 +1,6 @@
 +++
 title = "TIL: Handling Rule Lists in Lark"
-tags = ["python", "til"]
+tags = ["python", "til", "programming-languages"]
 description = "Handle ambiguity in the grammar, not the parser."
 date = "2024-09-07"
 +++
