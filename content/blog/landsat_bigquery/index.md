@@ -2,7 +2,7 @@
 title = "Summarizing 51 Years of Landsat Data"
 description = "I analyzed 11 million Landsat scenes to test out the new Earth Engine - BigQuery interface."
 date = "2024-09-15"
-tags = ["earth-engine", "python", "geospatial", "cloud"]
+tags = ["earth-engine", "python", "geospatial", "google-cloud"]
 +++
 
 BigQuery, a cloud platform for storing and analyzing big tabular datasets, was added as an [export option in Earth Engine](https://cloud.google.com/blog/products/data-analytics/new-bigquery-connector-to-google-earth-engine) last year, and I've been looking for an excuse to test it out ever since. It's hard to get a clear idea of capability and cost just from running tutorials and reading pricing tables, so after some brainstorming I settled on a quick weekend project: 
