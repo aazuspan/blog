@@ -3,4 +3,4 @@ repos:
     rev: v2.2.4
     hooks:
     - id: codespell
-      args: ["--skip", "*.html, ./static/"]
+      args: ["--skip", "*.html, ./static/", "-L", "nam"]
