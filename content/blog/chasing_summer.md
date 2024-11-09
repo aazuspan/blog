@@ -14,6 +14,8 @@ To answer that question, we need to be able to approximate two things:
 
 {{<figure src="/images/posts/chasing_summer/day_length_13p5hr.png" alt="A figure of day length by latitude and date with a band of red marking 15 hours of daylight." caption="Day length throughout the year by latitude. The red band shows areas with 13.5 hours (± 30 minutes) of daylight year-round.">}}
 
+*If you want to skip all the math and just get the answer at your location, here's an [interactive version](/daylight-hours).*
+
 ## Formulas and Functions
 
 After fumbling my way through some very basic astronomy, I came up with the following Python functions to calculate daylight hours[^daylight-hours] at a given latitude and day-of-year:

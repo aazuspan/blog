@@ -1,0 +1,383 @@
++++
+title = "Daylight Hours"
+description = "Calculate the daylight hours at a given latitude and date, and see how far you need to travel to maintain today's day length."
+date = "2024-11-09"
++++
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .input-forms {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            align-items: left;
+            margin: auto;
+            max-width: 300px;
+            padding: 20px;
+        }
+
+        .input-forms input {
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-forms button {
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #ebebeb;
+            color: rgb(39, 39, 39);
+            border: none;
+            cursor: pointer;
+        }
+
+        .input-forms button:hover {
+            background-color: #d9d9d9;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!--See https://github.com/plotly/plotly.js/issues/4563-->
+    <script>window.PlotlyConfig = { MathJaxConfig: 'local' }</script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script
+        src=" https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js "></script>
+</head>
+
+<body>
+
+    <h1>Daylight Hours</h1>
+    <div class="input-forms">
+        <label for="latitude">Latitude: </label>
+        <input type="text" id="latitude" placeholder="Latitude" required>
+        <label for="longitude">Longitude: </label>
+        <input type="text" id="longitude" placeholder="Longitude" required>
+        <label for="date">Date: </label>
+        <input type="date" id="date">
+        <button onclick="getLocation()" title="Use my location"><i class="fa fa-location-crosshairs"></i></button>
+        <button onclick="compute()">Compute</button>
+    </div>
+    <center>
+        <p id="results">Enter a location and date and click Compute to see how far you need to travel to maintain today's
+            daylight hours...
+        </p>
+        <div id="map-container"></div>
+        <p><i>See the <a href="/blog/chasing-summer">blog post</a> for details.</i></p>
+    </center>
+
+    <script>
+        const { DateTime } = luxon;
+
+        // Set the date to today
+        document.getElementById('date').valueAsDate = new Date();
+        let map;
+
+        function solarDeclination(doy) {
+            return -0.409 * Math.cos(2 * Math.PI / 365 * (doy + 10));
+        }
+
+        function hourAngle(latitude, declination) {
+            const x = -Math.tan(latitude) * Math.tan(declination);
+
+            return x < -1 ? Math.PI : x > 1 ? 0.0 : Math.acos(x);
+        }
+
+        function getDayLength(latitude, doy) {
+            const latRad = latitude * (Math.PI / 180);
+            const declination = solarDeclination(doy);
+            const ha = hourAngle(latRad, declination);
+
+            return ha * 7.639;
+        }
+
+        function getLatitude(dayLength, doy) {
+            declination = solarDeclination(doy);
+            latRad = -Math.atan(Math.cos(dayLength * 0.130899) / Math.tan(declination));
+            return latRad * (180 / Math.PI);
+        }
+
+        function getLocation() {
+            const locationDisplay = document.getElementById('results');
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    setPosition, 
+                    showError, 
+                    { enableHighAccuracy: false, timeout: 5000, maximumAge: Infinity }
+                );
+            } else {
+                locationDisplay.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function setPosition(position) {
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+        }
+
+        function haversineDistance(lat1, lat2, radius = 6371) {
+            const latRad1 = lat1 * (Math.PI / 180);
+            const latRad2 = lat2 * (Math.PI / 180);
+            const dlat = latRad2 - latRad1;
+
+            const a = Math.sin(dlat / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return radius * c;
+        }
+
+        function generatePlots(latitude, date) {
+            const dayLength = getDayLength(latitude, date.ordinal);
+            const dates = Array.from(
+                { length: date.endOf("year").ordinal },
+                (_, i) => date.startOf("year").plus({ days: i })
+            );
+            const doys = dates.map(d => d.ordinal);
+            const dayLengths = doys.map(d => getDayLength(latitude, d));
+            const latitudes = doys.map(d => getLatitude(dayLength, d));
+
+            // Calculate rate of change for day length and distance
+            const minsPerDay = dayLengths.slice(1).map((dl, i) =>
+                Math.abs((dl - dayLengths[i]) * 60)
+            );
+
+            // Shift last element in both arrays to match the length
+            minsPerDay.push(null);
+
+            // Compute distances between consecutive days based on latitude differences
+            const kilometers = latitudes.slice(1).map((latitude, i) =>
+                haversineDistance(latitude, latitudes[i])
+            );
+
+            const kmsPerDay = kilometers.slice(1).map((km, i) =>
+                Math.abs(km - kilometers[i])
+            );
+
+            // Shift last element in both arrays to match the length
+            kmsPerDay.push(null);
+
+            // Identify a reasonable color range
+            const sortedKms = [...kmsPerDay].sort((a, b) => a - b);
+            const colorRangeMax = sortedKms[Math.floor(sortedKms.length * 0.95)];
+
+
+            // Define the first trace (Daylight hours plot)
+            const dayLengthTrace = {
+                x: dates.map(d => d.toISODate()),
+                y: dayLengths,
+                mode: 'markers',
+                marker: {
+                    color: minsPerDay,
+                    colorscale: 'Viridis',
+                    colorbar: { title: 'Minutes per day' }
+                },
+                name: 'Daylight hours',
+                hoverinfo: 'x+y+marker.color',
+                xaxis: 'x1',
+                yaxis: 'y1'
+            };
+
+            // Define the second trace (Latitude plot)
+            const latitudeTrace = {
+                x: dates.map(d => d.toISODate()),
+                y: latitudes,
+                mode: 'markers',
+                marker: {
+                    color: kmsPerDay,
+                    colorscale: 'Viridis',
+                    cmin: 0,
+                    cmax: colorRangeMax,
+                    colorbar: { title: 'Kilometers per day' }
+                },
+                name: 'Latitude',
+                hoverinfo: 'x+y+marker.color',
+                xaxis: 'x2',
+                yaxis: 'y2',
+            };
+
+            // Define the layout for the subplots
+            const layout = {
+                grid: { rows: 1, columns: 2, pattern: 'independent' }, // Create independent subplots
+                width: 1000,
+                xaxis: { title: 'Date', matches: 'x2' },  // Shared X-axis across both plots
+                xaxis2: { title: 'Date' },  // Hidden label for 2nd plot
+                yaxis: { title: 'Daylight hours' },  // Left Y-axis title for first plot
+                yaxis2: { title: 'Latitude' },  // Right Y-axis title for second plot
+                template: 'plotly_white',
+                hovermode: "x unified",
+                hoversubplots: "overlaying",
+                annotations: [
+                    {
+                        text: `Daylight Hours at ${latitude.toFixed(2)}° Latitude`,
+                        showarrow: false,
+                        font: { size: 18 },
+                        x: 0,
+                        xref: "x domain",
+                        y: 1.1,
+                        yref: "y domain"
+                    },
+                    {
+                        text: `Latitude with ${dayLength.toFixed(2)} Daylight Hours`,
+                        showarrow: false,
+                        font: { size: 18 },
+                        x: 0,
+                        xref: "x2 domain",
+                        y: 1.1,
+                        yref: "y2 domain"
+                    }
+                ]
+            };
+
+            // Plot the figure with both traces and layout
+            Plotly.newPlot('plot', [dayLengthTrace, latitudeTrace], layout);
+        }
+
+        function generatePlot(latitude, date) {
+            const dayLength = getDayLength(latitude, date.ordinal);
+            const dates = Array.from(
+                { length: date.endOf("year").ordinal },
+                (_, i) => date.startOf("year").plus({ days: i })
+            );
+            const doys = dates.map(d => d.ordinal);
+            const dayLengths = doys.map(d => getDayLength(latitude, d));
+            const latitudes = doys.map(d => getLatitude(dayLength, d));
+
+            // Compute distances between consecutive days based on latitude differences
+            const kilometers = latitudes.slice(1).map((latitude, i) =>
+                haversineDistance(latitude, latitudes[i])
+            );
+
+            const kmsPerDay = kilometers.slice(1).map((km, i) =>
+                Math.abs(km - kilometers[i])
+            );
+
+            // Shift last element to match the length
+            kmsPerDay.push(null);
+
+            // Identify a reasonable color range
+            const sortedKms = [...kmsPerDay].sort((a, b) => a - b);
+            const colorRangeMax = sortedKms[Math.floor(sortedKms.length * 0.95)];
+
+            const latitudeTrace = {
+                x: dates.map(d => d.toISODate()),
+                y: latitudes,
+                mode: 'markers',
+                marker: {
+                    color: kmsPerDay,
+                    colorscale: 'Viridis',
+                    cmin: 0,
+                    cmax: colorRangeMax,
+                    colorbar: {
+                        title: 'km / day',
+                        ticks: 'outside',
+                        tickvals: [0, colorRangeMax],
+                        ticktext: ['0', `${colorRangeMax.toFixed(1)}`],
+                    }
+                },
+                name: 'Latitude',
+                hoverinfo: 'x+y+marker.color',
+            };
+
+            const layout = {
+                title: `Latitude with ${dayLength.toFixed(2)} Daylight Hours`,
+                margin: { t: 30 },
+                yaxis: { title: 'Latitude' },
+                height: 300,
+                template: 'plotly_white',
+                hovermode: "x unified",
+            };
+
+
+            Plotly.newPlot('plot', [latitudeTrace], layout);
+
+
+        }
+
+        function generateMap(lat, lon, nextLat) {
+            // Show a map with the current and next day's location
+            if (map == null) {
+                // Create the map div in the map-container
+                document.getElementById('map-container').innerHTML = '<div id="map" style="height: 400px;"></div>';
+                map = L.map('map');
+            }
+
+            map.eachLayer((l) => l.remove());
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+            }).addTo(map);
+
+            const today = L.circleMarker([lat, lon], { opacity: 0 }).addTo(map).bindTooltip("Today", { permanent: true });
+            const tomorrow = L.circleMarker([nextLat, lon], { opacity: 0 }).addTo(map).bindTooltip("Tomorrow", { permanent: true });
+
+            const line = L.polyline([[lat, lon], [nextLat, lon]]);
+            var pathPattern = L.polylineDecorator(
+                line,
+                {
+                    patterns: [
+                        { offset: 0, repeat: 6, symbol: L.Symbol.dash({ pixelSize: 0 }) }
+                    ]
+                }
+            ).addTo(map);
+
+
+            map.fitBounds([[lat, lon], [nextLat, lon]]);
+        }
+
+        function compute(position) {
+            const lat = parseFloat(document.getElementById('latitude').value);
+            const lon = parseFloat(document.getElementById('longitude').value);
+            const date = DateTime.fromISO(document.getElementById('date').value);
+
+            if (isNaN(lat) || isNaN(lon)) {
+                document.getElementById('results').innerHTML = "Enter a latitude and longitude.";
+                return;
+            }
+
+            const dayLength = getDayLength(lat, date.ordinal);
+            const nextDayLength = getDayLength(lat, date.ordinal + 1);
+            const diffDayLength = (dayLength - nextDayLength) * 60;
+            const verb = diffDayLength > 0 ? "shorter" : "longer";
+
+            const nextLat = getLatitude(dayLength, date.ordinal + 1);
+            const distance = haversineDistance(lat, nextLat);
+
+            document.getElementById('results').innerHTML = `Today at <b>${lat.toFixed(2)}° latitude</b> you'll see <b>${dayLength.toFixed(2)} daylight hours</b>. Tomorrow will be <b>${Math.abs(diffDayLength).toFixed(1)} minutes</b> ${verb}. You would need to travel <b>${distance.toFixed(1)} kilometers</b> to keep the same day length.`;
+
+            // TODO: Combine the two plots and finalize the style           
+            // generatePlot(lat, date);
+            generateMap(lat, lon, nextLat);
+        }
+
+        function showError(error) {
+            let message = '';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "Geolocation was denied.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "Geolocation was unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    message = "The request to get user location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    message = "An unknown error occurred.";
+                    break;
+            }
+            document.getElementById('results').innerHTML = message + " Try entering coordinates manually.";
+        }
+    </script>
+
+</body>
+
+</html>
