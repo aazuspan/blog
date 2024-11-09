@@ -40,16 +40,14 @@ date = "2024-11-09"
             background-color: #d9d9d9;
         }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link defer rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!--See https://github.com/plotly/plotly.js/issues/4563-->
-    <script>window.PlotlyConfig = { MathJaxConfig: 'local' }</script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+
+    <script defer src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script
+    <script defer
         src=" https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js "></script>
 </head>
 
@@ -75,8 +73,6 @@ date = "2024-11-09"
     </center>
 
     <script>
-        const { DateTime } = luxon;
-
         // Set the date to today
         document.getElementById('date').valueAsDate = new Date();
         let map;
@@ -135,173 +131,6 @@ date = "2024-11-09"
             return radius * c;
         }
 
-        function generatePlots(latitude, date) {
-            const dayLength = getDayLength(latitude, date.ordinal);
-            const dates = Array.from(
-                { length: date.endOf("year").ordinal },
-                (_, i) => date.startOf("year").plus({ days: i })
-            );
-            const doys = dates.map(d => d.ordinal);
-            const dayLengths = doys.map(d => getDayLength(latitude, d));
-            const latitudes = doys.map(d => getLatitude(dayLength, d));
-
-            // Calculate rate of change for day length and distance
-            const minsPerDay = dayLengths.slice(1).map((dl, i) =>
-                Math.abs((dl - dayLengths[i]) * 60)
-            );
-
-            // Shift last element in both arrays to match the length
-            minsPerDay.push(null);
-
-            // Compute distances between consecutive days based on latitude differences
-            const kilometers = latitudes.slice(1).map((latitude, i) =>
-                haversineDistance(latitude, latitudes[i])
-            );
-
-            const kmsPerDay = kilometers.slice(1).map((km, i) =>
-                Math.abs(km - kilometers[i])
-            );
-
-            // Shift last element in both arrays to match the length
-            kmsPerDay.push(null);
-
-            // Identify a reasonable color range
-            const sortedKms = [...kmsPerDay].sort((a, b) => a - b);
-            const colorRangeMax = sortedKms[Math.floor(sortedKms.length * 0.95)];
-
-
-            // Define the first trace (Daylight hours plot)
-            const dayLengthTrace = {
-                x: dates.map(d => d.toISODate()),
-                y: dayLengths,
-                mode: 'markers',
-                marker: {
-                    color: minsPerDay,
-                    colorscale: 'Viridis',
-                    colorbar: { title: 'Minutes per day' }
-                },
-                name: 'Daylight hours',
-                hoverinfo: 'x+y+marker.color',
-                xaxis: 'x1',
-                yaxis: 'y1'
-            };
-
-            // Define the second trace (Latitude plot)
-            const latitudeTrace = {
-                x: dates.map(d => d.toISODate()),
-                y: latitudes,
-                mode: 'markers',
-                marker: {
-                    color: kmsPerDay,
-                    colorscale: 'Viridis',
-                    cmin: 0,
-                    cmax: colorRangeMax,
-                    colorbar: { title: 'Kilometers per day' }
-                },
-                name: 'Latitude',
-                hoverinfo: 'x+y+marker.color',
-                xaxis: 'x2',
-                yaxis: 'y2',
-            };
-
-            // Define the layout for the subplots
-            const layout = {
-                grid: { rows: 1, columns: 2, pattern: 'independent' }, // Create independent subplots
-                width: 1000,
-                xaxis: { title: 'Date', matches: 'x2' },  // Shared X-axis across both plots
-                xaxis2: { title: 'Date' },  // Hidden label for 2nd plot
-                yaxis: { title: 'Daylight hours' },  // Left Y-axis title for first plot
-                yaxis2: { title: 'Latitude' },  // Right Y-axis title for second plot
-                template: 'plotly_white',
-                hovermode: "x unified",
-                hoversubplots: "overlaying",
-                annotations: [
-                    {
-                        text: `Daylight Hours at ${latitude.toFixed(2)}° Latitude`,
-                        showarrow: false,
-                        font: { size: 18 },
-                        x: 0,
-                        xref: "x domain",
-                        y: 1.1,
-                        yref: "y domain"
-                    },
-                    {
-                        text: `Latitude with ${dayLength.toFixed(2)} Daylight Hours`,
-                        showarrow: false,
-                        font: { size: 18 },
-                        x: 0,
-                        xref: "x2 domain",
-                        y: 1.1,
-                        yref: "y2 domain"
-                    }
-                ]
-            };
-
-            // Plot the figure with both traces and layout
-            Plotly.newPlot('plot', [dayLengthTrace, latitudeTrace], layout);
-        }
-
-        function generatePlot(latitude, date) {
-            const dayLength = getDayLength(latitude, date.ordinal);
-            const dates = Array.from(
-                { length: date.endOf("year").ordinal },
-                (_, i) => date.startOf("year").plus({ days: i })
-            );
-            const doys = dates.map(d => d.ordinal);
-            const dayLengths = doys.map(d => getDayLength(latitude, d));
-            const latitudes = doys.map(d => getLatitude(dayLength, d));
-
-            // Compute distances between consecutive days based on latitude differences
-            const kilometers = latitudes.slice(1).map((latitude, i) =>
-                haversineDistance(latitude, latitudes[i])
-            );
-
-            const kmsPerDay = kilometers.slice(1).map((km, i) =>
-                Math.abs(km - kilometers[i])
-            );
-
-            // Shift last element to match the length
-            kmsPerDay.push(null);
-
-            // Identify a reasonable color range
-            const sortedKms = [...kmsPerDay].sort((a, b) => a - b);
-            const colorRangeMax = sortedKms[Math.floor(sortedKms.length * 0.95)];
-
-            const latitudeTrace = {
-                x: dates.map(d => d.toISODate()),
-                y: latitudes,
-                mode: 'markers',
-                marker: {
-                    color: kmsPerDay,
-                    colorscale: 'Viridis',
-                    cmin: 0,
-                    cmax: colorRangeMax,
-                    colorbar: {
-                        title: 'km / day',
-                        ticks: 'outside',
-                        tickvals: [0, colorRangeMax],
-                        ticktext: ['0', `${colorRangeMax.toFixed(1)}`],
-                    }
-                },
-                name: 'Latitude',
-                hoverinfo: 'x+y+marker.color',
-            };
-
-            const layout = {
-                title: `Latitude with ${dayLength.toFixed(2)} Daylight Hours`,
-                margin: { t: 30 },
-                yaxis: { title: 'Latitude' },
-                height: 300,
-                template: 'plotly_white',
-                hovermode: "x unified",
-            };
-
-
-            Plotly.newPlot('plot', [latitudeTrace], layout);
-
-
-        }
-
         function generateMap(lat, lon, nextLat) {
             // Show a map with the current and next day's location
             if (map == null) {
@@ -334,6 +163,8 @@ date = "2024-11-09"
         }
 
         function compute(position) {
+            const { DateTime } = luxon;
+
             const lat = parseFloat(document.getElementById('latitude').value);
             const lon = parseFloat(document.getElementById('longitude').value);
             const date = DateTime.fromISO(document.getElementById('date').value);
@@ -353,8 +184,6 @@ date = "2024-11-09"
 
             document.getElementById('results').innerHTML = `Today at <b>${lat.toFixed(2)}° latitude</b> you'll see <b>${dayLength.toFixed(2)} daylight hours</b>. Tomorrow will be <b>${Math.abs(diffDayLength).toFixed(1)} minutes</b> ${verb}. You would need to travel <b>${distance.toFixed(1)} kilometers</b> to keep the same day length.`;
 
-            // TODO: Combine the two plots and finalize the style           
-            // generatePlot(lat, date);
             generateMap(lat, lon, nextLat);
         }
 
