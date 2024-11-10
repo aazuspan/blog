@@ -12,22 +12,17 @@ date = "2024-11-09"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .input-forms {
+        form {
             display: flex;
-            flex: 1;
             flex-direction: column;
-            align-items: left;
-            margin: auto;
-            max-width: 300px;
-            padding: 20px;
         }
 
-        .input-forms input {
+        form input {
             padding: 6px;
             margin-bottom: 10px;
         }
 
-        .input-forms button {
+        form button {
             padding: 10px;
             margin-top: 10px;
             background-color: #ebebeb;
@@ -36,12 +31,30 @@ date = "2024-11-09"
             cursor: pointer;
         }
 
-        .input-forms button:hover {
+        form button:hover {
             background-color: #d9d9d9;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .two-columns p {
+            margin: 0;
         }
     </style>
     <link defer rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <script defer src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
@@ -52,29 +65,40 @@ date = "2024-11-09"
 </head>
 
 <body>
-
     <h1>Daylight Hours</h1>
-    <div class="input-forms">
-        <label for="latitude">Latitude: </label>
-        <input type="text" id="latitude" placeholder="Latitude" required>
-        <label for="longitude">Longitude: </label>
-        <input type="text" id="longitude" placeholder="Longitude" required>
-        <label for="date">Date: </label>
-        <input type="date" id="date">
-        <button onclick="getLocation()" title="Use my location"><i class="fa fa-location-crosshairs"></i></button>
-        <button onclick="compute()">Compute</button>
+    <div class="two-columns">
+        <div>
+            <p>
+                Days get shorter and longer throughout the year, but what if they didn't have to?
+                How far would you need to travel today to see the same number of daylight hours
+                tomorrow? Enter a location and date and click Compute to find out.
+            </p>
+            <br>
+            <p><i>See the <a href="/blog/chasing-summer">blog post</a> for more details.</i></p>
+        </div>
+        <form>
+            <label for="latitude">Latitude: </label>
+            <input type="text" id="latitude" placeholder="Latitude" required>
+            <label for="longitude">Longitude: </label>
+            <input type="text" id="longitude" placeholder="Longitude" required>
+            <label for="date">Date: </label>
+            <input type="date" id="date" required>
+            <button type="button" onclick="getLocation()" title="Use my location"><i
+                    class="fa fa-location-crosshairs"></i></button>
+            <button type="submit">Compute</button>
+        </form>
     </div>
-    <center>
-        <p id="results">Enter a location and date and click Compute to see how far you need to travel to maintain today's
-            daylight hours...
-        </p>
-        <div id="map-container"></div>
-        <p><i>See the <a href="/blog/chasing-summer">blog post</a> for details.</i></p>
-    </center>
+    <p id="results"></p>
+    <div id="map-container"></div>
 
     <script>
         // Set the date to today
         document.getElementById('date').valueAsDate = new Date();
+        addEventListener('submit', (e) => {
+            e.preventDefault();
+            compute();
+        });
+
         let map;
 
         function solarDeclination(doy) {
@@ -106,8 +130,8 @@ date = "2024-11-09"
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    setPosition, 
-                    showError, 
+                    setPosition,
+                    showError,
                     { enableHighAccuracy: false, timeout: 5000, maximumAge: Infinity }
                 );
             } else {
@@ -159,10 +183,10 @@ date = "2024-11-09"
             ).addTo(map);
 
 
-            map.fitBounds([[lat, lon], [nextLat, lon]]);
+            map.fitBounds([[lat, lon], [nextLat, lon]], { padding: [50, 50] });
         }
 
-        function compute(position) {
+        function compute() {
             const { DateTime } = luxon;
 
             const lat = parseFloat(document.getElementById('latitude').value);
@@ -185,6 +209,7 @@ date = "2024-11-09"
             document.getElementById('results').innerHTML = `Today at <b>${lat.toFixed(2)}° latitude</b> you'll see <b>${dayLength.toFixed(2)} daylight hours</b>. Tomorrow will be <b>${Math.abs(diffDayLength).toFixed(1)} minutes</b> ${verb}. You would need to travel <b>${distance.toFixed(1)} kilometers</b> to keep the same day length.`;
 
             generateMap(lat, lon, nextLat);
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function showError(error) {
