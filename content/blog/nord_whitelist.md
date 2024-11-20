@@ -13,7 +13,7 @@ nordvpn-service.exe whitelist add subnet 192.168.1.0/24
 
 Running this in the Nord directory (probably `C:\Program Files\NordVPN`) allows for local connections to any address between `192.168.1.0` and `192.168.1.255`. However, that doesn't persist through restarts[^registry].
 
-To avoid having to manually rerun the command, I saved the script below into a `nord_whitelist.bat` file and set it up to run with a [scheduled task](https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page) on login, with a 3 minute delay to allow NordVPN to initialize first.
+To avoid having to manually rerun the command, I saved the script below into a `nord_whitelist.bat` file and set it up to run with a [scheduled task](https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page) on login, with admin privilege and a 3 minute delay to allow NordVPN to initialize first.
 
 
 ```bat
