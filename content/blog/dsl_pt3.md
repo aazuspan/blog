@@ -70,7 +70,7 @@ You could write your own audio engine from scratch using Numpy -- all you really
 
 Each note can be converted into a playable `pydub.AudioSegment` based on its frequency and duration in milliseconds using a signal generator. By overlaying[^overlaying] and concatenating[^concatenating] audio segments, we can form chords from notes, tracks from notes and chords, and songs from lists of tracks.
 
-Plumbing the existing music classes into Pydub was a pretty simple task, and results in a Python API that can both compose and synthesize songs. I wrote a quick demo song to test things out, and...
+Plumbing the existing music classes into Pydub was a pretty simple task, and results in a [Python API](https://github.com/aazuspan/arpeggio/tree/main/src/arpeggio/engine) that can both compose and synthesize songs. I wrote a quick demo song to test things out, and...
 
 ```python
 from arpeggio import instrument, note

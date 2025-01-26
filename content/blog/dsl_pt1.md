@@ -7,7 +7,7 @@ date = "2024-09-03"
 
 I've tinkered with parsers for a few small side projects like building [a language server](https://github.com/aazuspan/spinasm-lsp) and [parsing blog post metadata]({{% relref "/blog/parsing_frontmatter" %}}), but I wanted to tackle a bigger parsing project. I've also been trying to learn some music theory in my spare time, so why not combine the two ideas by building a domain-specific language (DSL) for notating and generating music?
 
-I'm (tentatively) calling it **Arpeggio**.
+I'm (tentatively) calling it [**Arpeggio**](/tag/arpeggio).
 
 ## The Concept
 
@@ -33,20 +33,20 @@ This is all likely to change once I actually start writing the parser, but I fig
 
 ### Syntax
 
-I'm leaning towards a syntax inspired by [Lua](https://www.lua.org/). Statements will be enclosed with keywords (e.g. `track` and `end`) instead of braces. Whitespace will be used for readability, but ignored by the parser. Comments will be started with `~`, because that's kind of fun and I won't need the operator. Configuration like song tempo or track gain will be accomplished with special block-scoped keywords enclosed in square brackets[^config].
+I'm leaning towards a syntax inspired by [Lua](https://www.lua.org/). Statements will be enclosed with keywords (e.g. `track` and `end`) instead of braces. Whitespace will be used for readability, but ignored by the parser. Comments will be started with `~`, because that's kind of fun and I won't need the operator. Configuration like song tempo or track gain will be accomplished with special block-scoped keywords prefixed with an `@` symbol.
 
-Here's a quick example program with the tentative syntax:
+Here's an empty example program with the tentative syntax:
 
 ```text
 ~ This is the song configuration
-[bpm 120]
-[key c]
-[mode major]
+@bpm 120
+@key c
+@mode major
 
 ~ This is the first track of the song
 track
-    [instrument sine]
-    [gain -10]
+    @instrument sine
+    @gain -10
 
     ~ Music goes here
 end
@@ -54,60 +54,31 @@ end
 
 ### Program Layout
 
-An Arpeggio program will be composed of tracks[^tracks]. Tracks will be composed of notes, chords, and/or loops of notes and chords. Patterns will be loops that are assigned to names for reusability.
+An Arpeggio program will be composed of tracks. Tracks will be composed of notes, chords, and/or loops of notes and chords. 
 
 ### Musical Notation
 
-Each program in Arpeggio will be constrained to one musical key[^music], defined at the top of the program. The notes and chords in that key will be referenced by interval (decimal for notes, Roman numerals[^numerals] for chords), which will make it easy to transpose a song between keys and modes without changing any notes. 
+Each program in Arpeggio will be constrained to one musical key[^music], defined at the top of the program. The notes and chords in that key will be referenced by interval numbers[^numerals], which will make it easy to transpose a song between keys and modes without changing any notes. 
 
-For example, the C major scale could be played with:
+Inspired by the [Kepatihan notation](https://en.wikipedia.org/wiki/Gamelan_notation#Kepatihan) used in Indonesian music, notes and chords will be arranged into lines, with a single interval representing one 1/16th note that can be extended into longer notes[^shorter] using a `.`.
+
+For example, a C major scale of 1/8th notes could be notated as:
 
 ```text
 track
-    1
-    2
-    3
-    4
-    5
-    6
-    7
+    | 1 . 2 . 3 . 4 . 5 . 6 . 7 .
 end
 ```
 
-While a C F G C chord progression could be played with:
+Modifiers after notes and chords can shift their octave by 1 (`+` and `-`) or 2 (`*` and `_`). Larger shifts are possible by setting a track-level octave modifier.
 
 ```text
 track
-    I
-    IV
-    V
-    I
-end
-```
-
-Modifiers after notes and chords can change their octave (`+` and `-`):
-
-```text
-track
-    1 ---   ~ C1
-    1 --    ~ C2
-    1 -     ~ C3
-    1       ~ C4
-    1 +     ~ C5
-    1 ++    ~ C6
-    1 +++   ~ C7
-end
-```
-
-...or their duration (`:` and `.`):
-
-```text
-track
-    1 ..    ~ 1/16 note
-    1 .     ~ 1/8 note
-    1       ~ 1/4 note
-    1 :     ~ 1/2 Note
-    1 ::    ~ 1/1 note
+    | 1 _    ~ C2
+    | 1 -    ~ C3
+    | 1      ~ C4
+    | 1 +    ~ C5
+    | 1 *    ~ C6
 end
 ```
 
@@ -116,26 +87,16 @@ With that system, we can notate a simple melody as:
 ```text
 ~ Happy Birthday
 
-[bpm 90]
-[scale f]
-[mode major]
+@bpm 90
+@key F_major
 
 track
-    [instrument triangle]
+    @instrument triangle
 
-    5 . 
-    5 .
-    6
-    5
-    1   +
-    7 :
-
-    5 .
-    5 .
-    6
-    5
-    2   +
-    1 : +
+    | 5 . 5 . 6 . . . 5 . . . 1+. . . 7 . . . . . . .
+    | 5 . 5 . 6 . . . 5 . . . 2+. . . 1+. . . . . . .
+    | 5 . 5 . 5+. . . 3+. . . 1+. . . 7 . . . 6 . . .
+    | 4+. 4+. 3+. . . 1+. . . 2+. . . 1+. . . . . . .
 end
 ```
 
@@ -150,7 +111,8 @@ With a tentative language design in mind, here's my loose roadmap:
 
 In [Part 2]({{% relref "/blog/dsl_pt2" %}}), I outline some basic music theory from a programmer's perspective, which will be needed to build Arpeggio.
 
-[^config]: Or maybe prefixed with `#`, or assigned as reserved variables, or enclosed in parentheses. I've changed it three times while writing this, and I'll probably change it again before it's done.
-[^tracks]: There will probably be a relatively low limit on the number of tracks to keep things fast. This isn't going to replace your [DAW](https://en.wikipedia.org/wiki/Digital_audio_workstation).
 [^music]: I wrote a ["programmer's guide to music theory"]({{% relref "/blog/dsl_pt2" %}}) that goes into more depth on the terminology, but the important takeaway is that Arpeggio will use a limited subset of musical notes that generally sound good together.
-[^numerals]: Usually lowercase Roman numerals are used for minor chords and vice versa, but in Arpeggio they'll be case insensitive since we can infer the exact chord from the key and interval.
+
+[^numerals]: I originally planned on using Roman numerals to distinguish chords from notes, but I found that keeping things vertically aligned was critical to be able to visually keep track of timing, and that wasn't possible using Roman numerals that contain different numbers of characters. Instead, tracks will use *either* notes or chords based on a `@chords` configuration flag.
+
+[^shorter]: Currently, I don't have a plan to allow for notes shorter than 1/16th, but you can always double the tempo.
