@@ -17,11 +17,12 @@ menu = "main"
 
 ## Machine Learning
 
-- [sknnr](https://github.com/lemma-osu/sknnr): k-nearest-neighbor imputation estimators in `scikit-learn`.
-- [sknnr-spatial](https://github.com/lemma-osu/sknnr): Fast, parallel raster processing and prediction using `Dask` and `scikit-learn`.
+- [sknnr](https://github.com/lemma-osu/sknnr): k-nearest neighbor imputation estimators in `scikit-learn`.
+- [sklearn-raster](https://github.com/lemma-osu/sklearn-raster): Fast raster prediction using `Dask` and `scikit-learn`.
 
 ## Everything Else
 
 - [stacmap](https://github.com/aazuspan/stacmap): A lightweight Python package for exploring STAC collections on an interactive map.
 - [spinasm-lsp](https://github.com/aazuspan/spinasm-lsp): An LSP server that provides language support for SPINAsm assembly.
+- [Arpeggio](https://github.com/aazuspan/arpeggio): A parser and interpreter for a musical domain-specific language.
 - [Arise](https://aazus.itch.io/arise): A twin-stick shooter game made in Godot in one week for a game jam.
