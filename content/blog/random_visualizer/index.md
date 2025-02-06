@@ -5,19 +5,19 @@ description = "Recreating a closed-source procedural color generation function t
 date = "2025-02-05"
 +++
 
-The `randomVisualizer` method in Earth Engine assigns randomized colors to unique values in an image, providing a quick and dirty method for visualizing classified pixels without having to manually create a color palette. 
+The `randomVisualizer` method in Earth Engine assigns randomized colors to unique values in an image, providing a quick shortcut to visualize classified pixels without manually creating a color palette. 
 
 {{<figure src="corine.png" caption="Before and after applying color to a land cover map with `randomVisualizer`.">}}
 
-The method's convenience comes with some limitations. Because the palette is computed on-the-fly and applied directly to the image, the only way to know which colors are assigned to which values is to manually or programmatically sample the generated image, which makes some simple things like building legends pretty expensive.
+The method's convenience comes with some limitations. Because the palette is computed on-the-fly and applied directly to the image, the only way to know which colors are assigned to which values is to manually or programmatically sample the generated image, which complicates some simple tasks like building legends.
 
-We could predict palettes ahead of time if we knew how `randomVisualizer` assigns colors, but the server code is closed-source and the documentation just calls it "random". However, with a few reasonable assumptions and a lot of trial and error, maybe we can reverse-engineer our own version of the random visualizer. 
+If we knew how `randomVisualizer` assigns colors, we could predict palettes ahead of time, but the server code is closed-source and [the documentation](https://developers.google.com/earth-engine/apidocs/ee-image-randomvisualizer) just describes it as "random". However, with a few reasonable assumptions and a lot of trial and error, maybe we can reverse-engineer our own version of the random visualizer. 
 
 The only way to begin is by beginning.
 
 ## How Does it Work?
 
-At its core, the Earth Engine RV (random visualizer) is a function that takes a number as input and returns 3 bytes representing red, green, and blue components. How? After some brainstorming and [research](https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/), I settled on four likely algorithms:
+The Earth Engine random visualizer is essentially a function that takes numbers as inputs and returns 3 byte RGB components. How? After some brainstorming and [research](https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/), I settled on four likely algorithms:
 
 1. A random number generator
 1. A lookup table
@@ -28,13 +28,11 @@ I'll take a closer look at each of those approaches, but first...
 
 ### Sample Outputs
 
-I wrote a quick script to sample a few thousand unique input-output pairs from the Earth Engine RV, which I'll use to 1) look for patterns that might reveal the underlying algorithm and 2) validate candidate RV functions.
+I wrote a quick script to sample a few thousand unique input-output pairs from the method, which I'll use to 1) look for patterns that might reveal the underlying algorithm and 2) validate candidate functions.
 
 {{<figure src="swatches.png" caption="The first 100 positive integral color outputs from `randomVisualizer`.">}}
 
-Running this script twice generates the same output, which reveals the first big clue: `randomVisualizer` is **deterministic** - a input value of 0 always returns `#fc2a85` <span style="color: #fc2a85">█</span>.
-
-That rules out the possibility of a purely random RGB or HSV color generator, leaving three more options.
+Running this script twice generates the same result, which reveals the first big clue. `randomVisualizer` is **deterministic** - an input value of 0 always returns an output of `#fc2a85` <span style="color: #fc2a85">█</span>. Contrary to its name and documentation, the random visualizer is *not* a simple random number generator. 
 
 ### What About...
 
@@ -43,7 +41,7 @@ That rules out the possibility of a purely random RGB or HSV color generator, le
 1. A color transformation
 1. A hash function
 
-A pre-computed hash map of number-color pairs would be deterministic, fast[^lookup], and would give you full control to create a color palette that is perceptually distinct, colorblind-friendly, etc. The downsides are a finite palette that repeats at a fixed interval, and having to deal with out-of-range and floating-point lookups[^float] by wrapping or rounding to the nearest key.
+A pre-computed hash map of number-color pairs would be deterministic, fast, and would give you full control to create a color palette that is perceptually distinct, colorblind-accessible, etc. The downsides are a finite palette that repeats at a fixed interval, and having to deal with out-of-range and floating-point lookups[^float] by wrapping or rounding to the nearest key.
 
 Looking at the sampled outputs, there are **no repeating colors** with integer inputs between -1,000 and 1,000. 
 
@@ -60,9 +58,9 @@ It's safe to say this isn't a lookup table with millions of unique entries, so l
 1. **A color transformation**
 1. A hash function
 
-Another strategy for procedurally generating deterministic color palettes is to apply a consistent transformation scaled by the input value, e.g. offsetting the hue with the golden ratio. This should be visible as a repeating pattern in the output color. 
+Another strategy for procedurally generating deterministic color palettes is to apply a consistent transformation scaled by the input value, e.g. offsetting hue with a multiple of the golden ratio. That kind of linear transformation should be visible as a repeating pattern in the output color. 
 
-Looking at the first 1,000 colors generated by the Earth Engine RV turned up **no repeating patterns** in RGB or HSV space, which you'd expect to see with a linear transformation.
+Looking at the first 1,000 colors generated by the Earth Engine random visualizer turned up **no repeating patterns** in RGB or HSV space.
 
 {{<figure src="hues.png" caption="Hues generated by a golden ratio transformation (left) and by `randomVisualizer` (right).">}}
 
@@ -75,19 +73,19 @@ That just leaves one option.
 1. ~A color transformation~
 1. **A hash function**
 
-An algorithm that converts arbitrary inputs to deterministic, non-repeating outputs sounds a *lot* like a hash function. I started encoding test values into bytes and feeding them into popular hash functions like MD5, SHA1, and SHA256, but failed to match any Earth Engine outputs.
+Converting arbitrary inputs to deterministic, non-repeating, uncorrelated outputs sounds a *lot* like hashing. I started feeding binary inputs into popular hash functions like MD5, SHA1, and SHA256, but failed to match any Earth Engine outputs.
 
-There's no such thing as "almost right" with a hash function, since similar inputs hash to dissimilar outputs by design, so after exhausting every option in Python's built-in `hashlib` package, I wasn't any closer to knowing whether my mismatched outputs were the result of a subtle difference like mismatched binary endianness, or using the wrong hash function altogether.
+There's no such thing as "almost right" with a hash function, since similar inputs hash to dissimilar outputs by design. After exhausting every option in Python's built-in `hashlib`, I wasn't any closer to knowing whether my hash misses were the result of a subtle distinction like mismatched binary endianness or a sign that I was on the wrong track completely.
 
-Heck, maybe it's not even a hash function. That's when I found...
+Until...
 
 ### The Breakthrough
 
-On a whim, I Googled the RGB output (252, 42, 133) for an input value of 0 and found...
+On a whim, I Googled the expected RGB output (252, 42, 133) for an input value of 0 and found...
 
 {{<figure src="murmurhash3.png">}}
 
-...[`murmurhash3`](https://github.com/yihleego/murmurhash3), a Go library implementing a hash function that I haven't tried yet called [MurmurHash](https://en.wikipedia.org/wiki/MurmurHash). The project readme gives the following code example:
+...a [Go library](https://github.com/yihleego/murmurhash3) implementing an [unfamiliar hash function](https://en.wikipedia.org/wiki/MurmurHash), which included the following code example:
 
 ```go
 murmur := murmur3.New32()
@@ -96,9 +94,9 @@ h := murmur.HashInt(0)
 h.AsBytes() // {252, 42, 133, 99}
 ```
 
-That's an input value of 0 mapping to the exact RGB output (ignoring the fourth byte) generated by the Earth Engine RV. Coincidence? I set up a quick Go project, ran some tests, and sure enough we can accurately reproduce output colors from arbitrary inputs.
+That's an input value of 0 mapping to the exact RGB output (ignoring the fourth byte) generated by `randomVisualizer`. Coincidence? I set up a quick Go project, ran some tests, and sure enough we can accurately reproduce output colors from arbitrary inputs.
 
-Mystery solved! 🎉
+Mystery solved 🎉! The Earth Engine random visualizer generates output colors as the [MurmurHash](https://en.wikipedia.org/wiki/MurmurHash) of input values.
 
 ## A Python Random Visualizer
 
@@ -118,7 +116,7 @@ def murmur_hash(x: float | int) -> bytes:
     return struct.pack("<i", mmh3.hash(encoded))[:3]
 ```
 
-Testing against all 2,000 sampled values from Earth Engine confirms this is a byte-accurate recreation of `randomVisualizer`, and we can even vectorize the hash function to create a fully functional local implementation of the method to apply to Numpy image arrays.
+Testing against all 2,000 sampled values from Earth Engine confirms this is a byte-accurate recreation of `randomVisualizer`, and we can even vectorize the hash function to create a complete local implementation of the method to apply to Numpy image arrays.
 
 ```python
 import numpy as np
@@ -131,8 +129,6 @@ def random_visualizer(img: np.ndarray) -> np.ndarray:
     )(img)
 ```
 
-And just like that, there's one fewer black box in Earth Engine.
+One fewer black box in Earth Engine!
 
 [^float]: Since it's designed for classified imagery that's almost exclusively integral, I was surprised to find that `randomVisualizer` does work with floating point inputs.
-
-[^lookup]: Hashmap lookups are [usually O(1) in Java](https://stackoverflow.com/questions/4553624/hashmap-get-put-complexity).
