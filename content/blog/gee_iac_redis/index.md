@@ -23,7 +23,7 @@ With the infrastructure planned, we can start writing the Pulumi code to deploy 
 
 ## Infrastructure as Code
 
-Some of this is going to look familiar if you read the [previous blog post](({{% relref "/blog/gee_iac_function" %}})), so I'll just briefly go over each component here, which are all contained in a `__main__.py` file at the project root.
+Some of this is going to look familiar if you read the [previous blog post]({{% relref "/blog/gee_iac_function" %}}), so I'll just briefly go over each component here, which are all contained in a `__main__.py` file at the project root.
 
 ### Enable APIs
 
