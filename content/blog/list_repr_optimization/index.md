@@ -1,6 +1,6 @@
 +++
 title = "Optimizing Long List Labeling in eerepr"
-tags = ["til", "earth-engine", "python"]
+tags = ["earth-engine", "python"]
 date = "2025-02-23"
 description = "Generating reprs 20% faster by predicting stringified list lengths."
 +++
