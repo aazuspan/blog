@@ -4,3 +4,11 @@ repos:
     hooks:
     - id: codespell
       args: ["--skip", "*.html, ./static/", "-L", "nam"]
+  - repo: local
+    hooks:
+    - id: check-post-names
+      name: check-post-names
+      entry: python scripts/check_post_names.py
+      language: python
+      additional_dependencies:
+        - python-slugify
