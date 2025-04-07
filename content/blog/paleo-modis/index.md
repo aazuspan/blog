@@ -97,7 +97,7 @@ Otherwise, Earth looks remarkably familiar to its current state. Just colder[^fu
 
 [^hsv]: I experimented with transforming the satellite imagery into HSV and LAB space prior to fitting the model, but ultimately found that RGB with a percentile stretch gave the best visual results.
 
-[^align]: Aligning the Earth Engine export to match a local raster grid was surprisingly tricky, so I wrote up a [short guide]({{% relref "/blog/til_ee_rasterio_export" %}}).
+[^align]: Aligning the Earth Engine export to match a local raster grid was surprisingly tricky, so I wrote up a [short guide]({{% relref "/blog/til-exporting-a-gee-image-using-rasterio-transforms" %}}).
 
 [^projection]: These figures were created with [Cartopy](https://scitools.org.uk/cartopy/docs/latest/) using a nearside perspective projection that I sneakily tipped towards the North Pole to hide the fact that the paleo climate data excludes Antarctica.
 

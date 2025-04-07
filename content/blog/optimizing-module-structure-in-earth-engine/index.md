@@ -6,7 +6,7 @@ description = "Nested file structures are great for organization and terrible fo
 aliases = ["/blog/nested-modules"]
 +++
 
-In a [recent blog post]({{% relref "/blog/minifying_modules" %}}), I found that shrinking an Earth Engine module's size by 75% had almost no effect on import speed in the Code Editor because most of the time was spent waiting for Earth Engine to find it, not downloading its contents. If that's the case, then is a module that's split up across multiple files much slower to import than a module contained in a single file?
+In a [recent blog post]({{% relref "/blog/should-you-minify-your-earth-engine-modules" %}}), I found that shrinking an Earth Engine module's size by 75% had almost no effect on import speed in the Code Editor because most of the time was spent waiting for Earth Engine to find it, not downloading its contents. If that's the case, then is a module that's split up across multiple files much slower to import than a module contained in a single file?
 
 To answer that question, I set up three test modules using different file structures and compared import times. What I found is that **module structure matters**. A lot. Using what I learned, I was able to cut import times for one of my old modules by **72%**.
 
@@ -105,7 +105,7 @@ I decided to simplify the structure to a single, monolithic module, moving all o
 
 So, will I build all of my Earth Engine modules in a single file from now on? Probably not. Being able to organize complex projects across multiple files dramatically improves maintainability, and that may be worth the cost in performance. However, I will pay closer attention to module structure, and avoid chained imports like I had in `snazzy` whenever possible. 
 
-Of course, compromising performance for organization (or vice-versa) isn't great, so maybe there's a third option. Specifically, I'm thinking that there's a need for a tool that could be set up to automatically merge nested submodules into a single root module. This step could be run through an automated Github workflow whenever new code is pushed, essentially compiling the project and pushing it to Earth Engine. That would allow for performant imports *and* clean, well-organized code. [Minification]({{% relref "/blog/minifying_modules" %}}) could even be run at the same time to speed up imports just a little bit more. 
+Of course, compromising performance for organization (or vice-versa) isn't great, so maybe there's a third option. Specifically, I'm thinking that there's a need for a tool that could be set up to automatically merge nested submodules into a single root module. This step could be run through an automated Github workflow whenever new code is pushed, essentially compiling the project and pushing it to Earth Engine. That would allow for performant imports *and* clean, well-organized code. [Minification]({{% relref "/blog/should-you-minify-your-earth-engine-modules" %}}) could even be run at the same time to speed up imports just a little bit more. 
 
 ~~But for the time being, I plan to just pay a little more attention to my module design.~~
 

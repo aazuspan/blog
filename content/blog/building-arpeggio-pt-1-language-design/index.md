@@ -5,7 +5,7 @@ description = "Planning a domain-specific language that compiles to music."
 date = "2024-09-03"
 +++
 
-I've tinkered with parsers for a few small side projects like building [a language server](https://github.com/aazuspan/spinasm-lsp) and [parsing blog post metadata]({{% relref "/blog/parsing_frontmatter" %}}), but I wanted to tackle a bigger parsing project. I've also been trying to learn some music theory in my spare time, so why not combine the two ideas by building a domain-specific language (DSL) for notating and generating music?
+I've tinkered with parsers for a few small side projects like building [a language server](https://github.com/aazuspan/spinasm-lsp) and [parsing blog post metadata]({{% relref "/blog/writing-a-parser-for-blog-posts" %}}), but I wanted to tackle a bigger parsing project. I've also been trying to learn some music theory in my spare time, so why not combine the two ideas by building a domain-specific language (DSL) for notating and generating music?
 
 I'm (tentatively) calling it [**Arpeggio**](/tag/arpeggio).
 
@@ -109,9 +109,9 @@ With a tentative language design in mind, here's my loose roadmap:
 1. Put everything together to compile Arpeggio programs into songs.
 1. Maybe a language server?
 
-In [Part 2]({{% relref "/blog/dsl_pt2" %}}), I outline some basic music theory from a programmer's perspective, which will be needed to build Arpeggio.
+In [Part 2]({{% relref "/blog/building-arpeggio-pt-2-music-theory-for-programmers" %}}), I outline some basic music theory from a programmer's perspective, which will be needed to build Arpeggio.
 
-[^music]: I wrote a ["programmer's guide to music theory"]({{% relref "/blog/dsl_pt2" %}}) that goes into more depth on the terminology, but the important takeaway is that Arpeggio will use a limited subset of musical notes that generally sound good together.
+[^music]: I wrote a ["programmer's guide to music theory"]({{% relref "/blog/building-arpeggio-pt-2-music-theory-for-programmers" %}}) that goes into more depth on the terminology, but the important takeaway is that Arpeggio will use a limited subset of musical notes that generally sound good together.
 
 [^numerals]: I originally planned on using Roman numerals to distinguish chords from notes, but I found that keeping things vertically aligned was critical to be able to visually keep track of timing, and that wasn't possible using Roman numerals that contain different numbers of characters. Instead, tracks will use *either* notes or chords based on a `@chords` configuration flag.
 

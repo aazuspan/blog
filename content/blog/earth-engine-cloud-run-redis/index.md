@@ -5,7 +5,7 @@ description = "Speeding up serverless Earth Engine functions with Redis caching.
 date = "2024-11-26"
 +++
 
-A few months back I posted [my experiments]({{% relref "/blog/gee_iac_function" %}}) deploying serverless Earth Engine functions using infrastructure-as-code with [Pulumi](https://www.pulumi.com/). Here, I'm building on that code to add a [Redis](https://redis.io) instance that will allow us to cache server-side computations, reducing the number of EE calls and speeding up responses.
+A few months back I posted [my experiments]({{% relref "/blog/deploying-earth-engine-cloud-functions-using-iac" %}}) deploying serverless Earth Engine functions using infrastructure-as-code with [Pulumi](https://www.pulumi.com/). Here, I'm building on that code to add a [Redis](https://redis.io) instance that will allow us to cache server-side computations, reducing the number of EE calls and speeding up responses.
 
 ## The Goal
 
@@ -23,7 +23,7 @@ With the infrastructure planned, we can start writing the Pulumi code to deploy 
 
 ## Infrastructure as Code
 
-Some of this is going to look familiar if you read the [previous blog post]({{% relref "/blog/gee_iac_function" %}}), so I'll just briefly go over each component here, which are all contained in a `__main__.py` file at the project root.
+Some of this is going to look familiar if you read the [previous blog post]({{% relref "/blog/deploying-earth-engine-cloud-functions-using-iac" %}}), so I'll just briefly go over each component here, which are all contained in a `__main__.py` file at the project root.
 
 ### Enable APIs
 

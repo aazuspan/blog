@@ -6,7 +6,7 @@ date = "2024-09-04"
 +++
 
 
-I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that compiles code into music. In [Part 1]({{% relref "/blog/dsl_pt1" %}}), I outlined the basic language design and syntax. Here, I'm going to do a very shallow dive into music theory from a programmer's perspective, focusing on the terms and concepts needed to build the music backend that powers Arpeggio.
+I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that compiles code into music. In [Part 1]({{% relref "/blog/building-arpeggio-pt-1-language-design" %}}), I outlined the basic language design and syntax. Here, I'm going to do a very shallow dive into music theory from a programmer's perspective, focusing on the terms and concepts needed to build the music backend that powers Arpeggio.
 
 *Disclaimer: Music theory is a huge field of study that's filled with complexity and ambiguity, which I'm going to vastly oversimplify down to the basic math and patterns that I can understand. Apologies to any real musicians who stumble onto this.*
 
@@ -75,7 +75,7 @@ assert QuarterNote.to_millis(bpm=60) == 1000
 
 ## Wrapping Up
 
-And that's it! We can define a song with a key, use modes and intervals to find semitones, and use semitones and beats to calculate notes and chords. All that's left is turning frequencies and durations into audio that we can hear, which you can read about in [Part 3]({{% relref "/blog/dsl_pt3" %}})!
+And that's it! We can define a song with a key, use modes and intervals to find semitones, and use semitones and beats to calculate notes and chords. All that's left is turning frequencies and durations into audio that we can hear, which you can read about in [Part 3]({{% relref "/blog/building-arpeggio-pt-3-the-engine" %}})!
 
 [^standard-pitch]: Not everyone agrees on [this](https://en.wikipedia.org/wiki/A440_(pitch_standard)).
 [^tonal-music]: Not everyone agrees on [this](https://en.wikipedia.org/wiki/Microtone_(music)).

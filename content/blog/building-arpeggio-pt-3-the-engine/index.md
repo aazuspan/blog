@@ -9,7 +9,7 @@ I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that co
 
 ## Building a Song in Code
 
-In [Part 2]({{% relref "/blog/dsl_pt2" %}}), I outlined how we can represent musical concepts like keys, modes, notes, and chords in Python. For a quick recap, here's the basic structure of those classes:
+In [Part 2]({{% relref "/blog/building-arpeggio-pt-2-music-theory-for-programmers" %}}), I outlined how we can represent musical concepts like keys, modes, notes, and chords in Python. For a quick recap, here's the basic structure of those classes:
 
 ```python
 Interval = int
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
 We have music! 
 
-Being able to write a playable song in Python is exciting, but the code is pretty verbose. If only we could rewrite it in a simpler language that was designed just for writing songs... In [Part 4]({{% relref "/blog/dsl_pt4" %}}), I detail the parser and interpreter that convert Arpeggio code into audio using the engine we built here.
+Being able to write a playable song in Python is exciting, but the code is pretty verbose. If only we could rewrite it in a simpler language that was designed just for writing songs... In [Part 4]({{% relref "/blog/building-arpeggio-pt-4-the-parser-interpreter" %}}), I detail the parser and interpreter that convert Arpeggio code into audio using the engine we built here.
 
 [^compiled]: I refer to both compiling and interpreting Arpeggio, based on the idea that programs can be compiled into WAV files or interpreted directly into audio. This is probably stretching the definitions of those terms since there's no machine code involved, but it seems faithful to the core idea that compilers generate "executable" output files.
 [^overlaying]: In Pydub, overlaying two audio segments simply sums their signals. Because audio segments are stored in signed 16 bit arrays, adding two together tends to overflow the data type and clip, creating distortion. Pydub doesn't offer any workarounds for this, so I ended up adding a `normalized_overlay` function that just sums arrays using a larger datatype, and rescales as needed to avoid clipping.

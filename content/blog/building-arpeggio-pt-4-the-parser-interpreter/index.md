@@ -5,11 +5,11 @@ description = "Turning code into notes."
 date = "2025-01-26"
 +++
 
-I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that compiles code into songs. I outlined a tentative syntax for the language in [Part 1]({{% relref "/blog/dsl_pt1" %}}), explored the musical theory behind it in [Part 2]({{% relref "/blog/dsl_pt2" %}}), and implemented a Python music engine to power it in [Part 3]({{% relref "/blog/dsl_pt3" %}}). Now it's time to finally connect those components together by writing a parser and interpreter that turns our custom language into playable music.
+I'm building a domain-specific language called [Arpeggio](/tag/arpeggio) that compiles code into songs. I outlined a tentative syntax for the language in [Part 1]({{% relref "/blog/building-arpeggio-pt-1-language-design" %}}), explored the musical theory behind it in [Part 2]({{% relref "/blog/building-arpeggio-pt-2-music-theory-for-programmers" %}}), and implemented a Python music engine to power it in [Part 3]({{% relref "/blog/building-arpeggio-pt-3-the-engine" %}}). Now it's time to finally connect those components together by writing a parser and interpreter that turns our custom language into playable music.
 
 ## Syntax and Semantics
 
-The language design was detailed in [Part 1]({{% relref "/blog/dsl_pt1" %}}), but here's a quick recap of the core concepts:
+The language design was detailed in [Part 1]({{% relref "/blog/building-arpeggio-pt-1-language-design" %}}), but here's a quick recap of the core concepts:
 
 - **Songs** are the top-level construct, defined by an `arp` file, and contain configuration and tracks.
 - **Tracks** define and configure notes and chords that compose songs, arranged into lines.
@@ -96,7 +96,7 @@ A similar process of parsing text into tokens and transforming tokens into liter
 
 ## Interpreting 
 
-With an Arpeggio program parsed and transformed into meaningful data structures like `Interval`, `Track`, and `Song`, the final step is to connect those abstract representations to the Python music engine I built in [Part 3]({{% relref "/blog/dsl_pt3" %}}).
+With an Arpeggio program parsed and transformed into meaningful data structures like `Interval`, `Track`, and `Song`, the final step is to connect those abstract representations to the Python music engine I built in [Part 3]({{% relref "/blog/building-arpeggio-pt-3-the-engine" %}}).
 
 The final interpreter is just [30 lines of Python](https://github.com/aazuspan/arpeggio/blob/main/src/arpeggio/interpreter.py), instantiating `Song` and `Track` objects from the music engine with their corresponding configuration options from the AST and using Pydantic to [validate](https://github.com/aazuspan/arpeggio/blob/main/src/arpeggio/validation.py) options and raise errors. Tracks are populated with transformed notes and chords, creating an audio representation of an Arpeggio program that can be played back or compiled to a WAV file.
 
