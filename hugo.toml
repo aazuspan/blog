@@ -53,6 +53,7 @@ ignoreErrors = ["error-disable-taxonomy"]
 
   [params.utterances]
     repo = "aazuspan/blog"
+    theme = "boxy-light"
 
   [params.author]
     name = "Aaron Zuspan"
