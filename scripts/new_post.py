@@ -25,7 +25,7 @@ if __name__ == "__main__":
     post_dir.mkdir(parents=True, exist_ok=True)
     post_file = post_dir / "index.md"
     if post_file.exists():
-        print(f"Post {post_file} already exists.")
+        print(f"ERROR: Post already exists: {post_file}")
         exit(1)
 
     frontmatter = generate_frontmatter(args.title, now)
@@ -34,3 +34,5 @@ if __name__ == "__main__":
         f.write(frontmatter)
         f.write("+++\n\n")
         f.write("Hello world!\n")
+
+    print(f"SUCCESS: Post created: {post_file}.")
