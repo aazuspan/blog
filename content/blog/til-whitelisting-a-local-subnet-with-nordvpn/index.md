@@ -5,6 +5,14 @@ description = "A hacky fix for NordVPN disconnecting shared drives on a local ne
 date = "2024-11-17"
 +++
 
+<div style='background-color: darkred; border-radius: 10px; color: white; padding: 10px; font-weight: bold'>
+UPDATE:
+
+It looks like the bug that prevented connecting to mapped network drives is fixed as of NordVPN 7.39.1.0, and this workaround now causes issues with VPN connections. 
+
+If you're still having issues with mapped drives, I suggest updating software first and only using this workaround as a last resort.
+</div>
+
 After a software update on my Windows machine, I noticed that connecting NordVPN disconnected some mapped network drives on my local network. I came across [an undocumented command](https://www.reddit.com/r/nordvpn/comments/x2d3t5/comment/imjlk0b/) that allows you to whitelist a subnet:
 
 ```bat
