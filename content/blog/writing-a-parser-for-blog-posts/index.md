@@ -2,7 +2,7 @@
 title = "Writing a Parser for Blog Posts"
 date = "2024-08-30"
 description = "Using grammar to reformat my blog posts."
-tags = ["python", "algorithms"]
+tags = ["python", "programming-languages"]
 +++
 
 In an effort to simplify and speed up my blog, I'm migrating from my custom-made [NextJS SPA](https://github.com/aazuspan/blog) to [Hugo](https://gohugo.io/), which means reformatting the frontmatter header of every blog post from this:
@@ -88,7 +88,7 @@ frontmatter
   summary       Using grammar to reformat my blog post metadata.
   tags
     tag python
-    tag algorithms
+    tag programming-languages
 ```
 
 Now we just need to write a [transformer](https://lark-parser.readthedocs.io/en/latest/visitors.html) to correctly format our parsed nodes.

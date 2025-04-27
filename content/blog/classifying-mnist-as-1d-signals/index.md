@@ -1,6 +1,6 @@
 +++
 title = "Classifying MNIST as 1D Signals"
-tags = ["deep-learning", "pytorch", "python", "algorithms"]
+tags = ["deep-learning", "pytorch", "python"]
 description = "Using polar aggregation and 1D CNNs to classify handwritten digits the (unnecessarily) hard way."
 date = "2025-02-16"
 +++

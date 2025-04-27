@@ -1,6 +1,6 @@
 +++
 title = "Chasing Summer"
-tags = ["python", "algorithms"]
+tags = ["python", "geospatial"]
 date = "2024-08-23"
 description = "How far would you need to travel every day to experience the same number of daylight hours year-round?"
 +++

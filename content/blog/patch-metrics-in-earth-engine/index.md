@@ -1,6 +1,6 @@
 +++
 title = "Patch Metrics in Earth Engine"
-tags = ["earth-engine", "javascript", "algorithms"]
+tags = ["earth-engine", "javascript", "algorithms", "geospatial"]
 description = "Implementing common patch metrics from Fragstats, cloud-native style."
 date = "2023-08-26"
 aliases = ["/blog/patch_metrics"]

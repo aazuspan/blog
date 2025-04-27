@@ -1,6 +1,6 @@
 +++
 title = "Dithering in Earth Engine"
-tags = ["earth-engine", "javascript", "algorithms"]
+tags = ["earth-engine", "javascript"]
 date = "2022-03-19"
 description = "Dithering is an image processing technique used in retro video games to simulate shading with a single color. Let's apply it to Landsat imagery in Earth Engine."
 aliases = ["/blog/dithering"]
