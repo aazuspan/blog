@@ -19,7 +19,7 @@ An autoencoder has two components: an encoder that transforms data into that red
 
 ## Building an MLP Autoencoder
 
-A basic `MLPRegressor` with one hidden layer representing the reduced latent space, trained to reproduce features from features, gives us an autoencoder out-of-the-box. It lacks some functionality, but we'll work on that later.
+By training an `MLPRegressor` with one hidden layer (the latent space) to reproduce its training features, we have an autoencoder out-of-the-box. It lacks some functionality, but we'll work on that later.
 
 ```python
 from sklearn.datasets import load_digits
@@ -35,7 +35,7 @@ ae = MLPRegressor(hidden_layer_sizes=(8,), max_iter=2000)
 ae.fit(X_train, X_train)
 ```
 
-Training the model with 64 features -- the flattened pixels of 8x8 mini MNIST digits -- and a latent space of just 8 features produces a shallow autoencoder that can reconstruct training data with reasonable accuracy. Similar digits start to blend together, but they're still largely recognizable despite a ~90% dimensionality reduction in the latent space.
+Training the model with 64 features -- the flattened pixels of 8x8 mini MNIST digits -- and a latent space of just 8 features produces a shallow autoencoder that can reconstruct unseen data with reasonable accuracy. Similar digits start to blend together, but they're still largely recognizable despite a ~90% dimensionality reduction in the latent space.
 
 {{<figure src="mnist.png">}}
 
