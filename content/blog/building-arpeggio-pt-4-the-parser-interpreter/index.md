@@ -102,14 +102,7 @@ The final interpreter is just [30 lines of Python](https://github.com/aazuspan/a
 
 Here's the audio for a rendered demo song, with the Arpeggio source code below:
 
-
-<center>
-<audio controls> 
-    <source src="demo_song.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
-
+{{<audio src="demo_song.wav">}}
 
 ```text
 @key d_dorian

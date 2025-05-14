@@ -45,23 +45,9 @@ With the NAM plugin installed, using the trained model just requires downloading
 
 For an A-B test comparison, I recorded a guitar track and exported two versions - one reamped through my amp with the same mic setup I used for training, and another modeled by my trained WaveNet. If you want a challenge, you can try to guess which is which below (answer in the footnotes[^ab]).
 
-<center>
-Sample A:
-<br>
-<audio controls> 
-    <source src="akai overdrive nam.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
+{{<audio src="akai overdrive nam.wav" title="Sample A:">}}
 
-<center>
-Sample B:
-<br> 
-<audio controls> 
-    <source src="akai overdrive amp.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
+{{<audio src="akai overdrive amp.wav" title="Sample B:">}}
 
 ## WaveNet vs. Vacuum Tubes
 

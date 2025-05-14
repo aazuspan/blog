@@ -1,10 +1,18 @@
 {{ $id := $.Ordinal }}
+{{- $u := urls.Parse (.Get "src") -}}
+{{- $src := $u.String -}}
+{{- if not $u.IsAbs -}}
+  {{- with or (.Page.Resources.Get $u.Path) (resources.Get $u.Path) -}}
+  {{- $src = .RelPermalink -}}
+  {{- end -}}
+{{- end -}}
+
 <center>
   {{ with (.Get "title") -}}
   <h4>{{ . }}</h4>
   {{- end -}}
   <audio controls id="{{ $id }}" preload="auto">
-    <source src="{{ .Get " src" }}">
+    <source src="{{ $src }}">
     Your browser does not support the audio element.
   </audio>
 

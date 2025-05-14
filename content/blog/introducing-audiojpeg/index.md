@@ -31,12 +31,7 @@ Either way will work, but it turns out that there are some interesting implicati
 
 With our basic algorithm figured out, we can now turn this 30 seconds of audio...
 
-<center>
-<audio controls> 
-    <source src="PinkPanther30.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
+{{<audio src="PinkPanther30.wav">}}
 
 ...into this 432 x 512 image:
 
@@ -82,12 +77,7 @@ At maximum quality, the decoded audio sounds unchanged, apart from some *very* s
     </tr>
 </table>
 
-<center>
-<audio controls> 
-    <source src="PinkPanther30_100.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
+{{<audio src="PinkPanther30_100.wav">}}
 
 ### JPEG Quality 50
 
@@ -100,12 +90,7 @@ At the halfway point, the subtle hiss has turned into some much less subtle digi
     </tr>
 </table>
 
-<center>
-<audio controls> 
-    <source src="PinkPanther30_50.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
+{{<audio src="PinkPanther30_50.wav">}}
 
 ### JPEG Quality 1
 
@@ -118,15 +103,7 @@ Uh oh. The images alone make it pretty clear that this one is doomed, and as exp
     </tr>
 </table>
 
-<center>
-<p>
-<b>Volume Warning</b>: This sounds awful.
-</p>
-<audio controls> 
-    <source src="PinkPanther30_1.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
-</center>
+{{<audio src="PinkPanther30_1.wav" title="Volume Warning">}}
 
 On closer inspection, the metadata header has been obliterated by compression, leading to incorrect sampling rates and amplitudes. But somehow, manually entering the correct values doesn't make it sound *any* better.
 

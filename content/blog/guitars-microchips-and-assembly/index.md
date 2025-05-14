@@ -141,11 +141,7 @@ Now we just need to get it onto our pedal. The dev board I used has a built-in U
 
 How does it sound?
 
-
-<audio controls>
-    <source src="fv1_tremolo.mp3" type="audio/mp3">
-</audio>
-
+{{<audio src="fv1_tremolo.mp3">}}
 
 Like a tremolo! Not bad for a day of hacking.
 

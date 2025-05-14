@@ -99,10 +99,7 @@ if __name__ == "__main__":
     song.play()
 ```
 
-<audio controls> 
-    <source src="knuckle_song.wav" type="audio/wav">
-    Your browser does not support the audio element.
-</audio>
+{{<audio src="knuckle_song.wav">}}
 
 We have music! 
 
