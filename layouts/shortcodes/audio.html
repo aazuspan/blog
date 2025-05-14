@@ -1,0 +1,30 @@
+{{ $id := $.Ordinal }}
+<center>
+  {{ with (.Get "title") -}}
+  <h4>{{ . }}</h4>
+  {{- end -}}
+  <audio controls id="{{ $id }}" preload="auto">
+    <source src="{{ .Get " src" }}">
+    Your browser does not support the audio element.
+  </audio>
+
+  {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
+  <figcaption>
+    {{ with (.Get "caption") -}}
+    {{ . | markdownify }}
+    {{- end -}}
+  </figcaption>
+  {{- end }}
+
+</center>
+
+{{ with .Get "volume" }}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var audio = document.getElementById("{{ $id }}");
+    if (audio) {
+      audio.volume = '{{ . }}';
+    }
+  });
+</script>
+{{ end }}
