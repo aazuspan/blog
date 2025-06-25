@@ -14,19 +14,21 @@ function sunDirection(azimuthDeg, elevationDeg) {
 // Width of the snag model scene
 const modelWidth = 90;
 const modelHeight = 90;
-const modelCenter = new THREE.Vector3(modelWidth / 2, modelHeight / 2, 0);
 
+// Solar position in the NAIP scene
 const azimuth = 148.66;
 const elevation = 68.11;
 
-const sceneWidth = 700;
-const sceneHeight = 500;
+// Desired display aspect ratio
+const aspectRatio = 7 / 5;
+
+const container = document.getElementById("snag-viewer");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("lightgrey");
 
 const camera = new THREE.OrthographicCamera(
-    -sceneWidth / 2, sceneWidth / 2,
-    sceneHeight / 2, -sceneHeight / 2,
+    -350, 350,
+    350 / aspectRatio, -350 / aspectRatio,
     0.1, 3000
 );
 camera.zoom = 4;
@@ -34,9 +36,8 @@ camera.position.set(-40, -40, 100);
 camera.up.set(0, 0, 1);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(sceneWidth, sceneHeight);
 renderer.shadowMap.enabled = true;
-document.getElementById("snag-viewer").appendChild(renderer.domElement);
+container.appendChild(renderer.domElement);
 
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -46,20 +47,26 @@ controls.update();
 // Ground plane
 const groundGeo = new THREE.PlaneGeometry(modelWidth, modelHeight, 150, 150);
 const groundMat = new THREE.MeshStandardMaterial({side: THREE.DoubleSide});
-const groundTexture = new THREE.TextureLoader().load('ground-texture.png');
-groundTexture.colorSpace = THREE.SRGBColorSpace;
-groundMat.map = groundTexture;
-const displacementMap = new THREE.TextureLoader().load('displacement.png');
-groundMat.displacementMap = displacementMap;
-// The scale controls the total height variation in the displacement map. This was 
-// calculated from the GeoTIFF.
-groundMat.displacementScale = 11.930054;
+// Overlay the NAIP texture
+new THREE.TextureLoader().load('ground-texture.png', texture => {
+  texture.colorSpace = THREE.SRGBColorSpace;
+  groundMat.map = texture;
+  groundMat.needsUpdate = true; // Ensure the material updates with the new texture
+});
+
+// Displace the ground using the DEM to simulate terrain
+new THREE.TextureLoader().load('displacement.png', displacement => {
+  groundMat.displacementMap = displacement;
+  // Total height variation in meters of the DEM
+  groundMat.displacementScale = 11.930054;
+  groundMat.needsUpdate = true; // Ensure the material updates with the new displacement map
+});
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.receiveShadow = true;
 scene.add(ground);
 
 
-// Load GLB
+// Load snag model
 const loader = new GLTFLoader();
 loader.load('snags.glb', gltf => {
   gltf.scene.traverse(node => {
@@ -69,11 +76,11 @@ loader.load('snags.glb', gltf => {
       node.material.color.set("#b8816c");
     }
   });
-  gltf.scene.position.set(-modelCenter.x, -modelCenter.y, 0);
+  gltf.scene.position.set(-modelWidth / 2, -modelHeight / 2, 0);
   scene.add(gltf.scene);
 });
 
-
+// Simulate the sun position during the NAIP acquisition
 const sun = new THREE.DirectionalLight(0xffffff, 5);
 const sunDir = sunDirection(azimuth, elevation);
 sun.position.copy(sunDir.multiplyScalar(100))
@@ -82,6 +89,7 @@ sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera = new THREE.OrthographicCamera(-100, 100, 100, -100, 0, 200);
 scene.add(sun);
 
+// Add a control to toggle simulated shadows
 const shadowToggle = document.createElement('button');
 shadowToggle.textContent = "Toggle simulated shadows";
 shadowToggle.style.position = 'absolute';
@@ -90,7 +98,18 @@ shadowToggle.style.right = '10px';
 shadowToggle.onclick = () => {
   sun.castShadow = !sun.castShadow;
 };
-document.getElementById("snag-viewer").appendChild(shadowToggle);
+container.appendChild(shadowToggle);
+
+// Resize the canvas to fit the container
+const resizeObserver = new ResizeObserver(() => {
+  const width = container.clientWidth;
+  const height = container.clientWidth / aspectRatio;
+
+  renderer.setSize(width, height, false); // false avoids modifying CSS
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+});
+resizeObserver.observe(container);
 
 function animate() {
   requestAnimationFrame(animate);

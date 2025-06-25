@@ -72,9 +72,23 @@ You can see the results for yourself in the interactive demo below (click and dr
     }
   }
   </script>
+  <style>
+    #snag-viewer {
+      width: 100%;
+      height: auto;
+      border: 1px solid grey;
+      position: relative;
+      cursor: pointer;
+    }
+    #snag-viewer canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-<div id="snag-viewer" style="width: 700px; height: 500px; border: 1px solid grey; position: relative; cursor: pointer;">
+<div id="snag-viewer">
 </div>
 <script src="snags.js" type="module"></script>
 </body>
