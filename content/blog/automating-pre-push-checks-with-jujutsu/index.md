@@ -280,3 +280,17 @@ It works! Mostly. I expect to find more limitations and edge cases once I start 
 The first two could be fixed with some more code, but I'm already pushing my knowledge of (and patience with) Bash, so I'll save that improvement for later - maybe I'll eventually turn this into a Python script that wraps around `jj` and `pre-commit`. The third limitation could be solved by making an alias for `jj git push` in my shell, but for now I want to leave that command untouched in case I need to work around limitations 1 and 2.
 
 Despite the rough edges, I think this should be a usable bridge between `jj` and `pre-commit` that gets me through to official hook support, whenever that comes. 
+
+---
+
+## Update: A better solution
+
+[@acarapetis](https://github.com/acarapetis) built an awesome Python package for running pre-push checks with `jj` called [jj-pre-push](https://github.com/acarapetis/jj-pre-push). It does a dry-run push to find the commits that need to be checked, which is much more accurate than the `log` command above since it supports different bookmarks and remotes, as well as push arguments like `--tracked` or `--deleted`.
+
+Here's how I have my aliases set up now:
+
+```toml
+[aliases]
+push = ["util", "exec", "--", "uvx", "--with", "pre-commit", "jj-pre-push", "push"]
+check = ["util", "exec", "--", "uvx", "--with", "pre-commit", "jj-pre-push", "check"]
+```
