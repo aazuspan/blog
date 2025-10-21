@@ -7,7 +7,7 @@ title = "Home"
 
 # About Me
 
-I'm **Aaron Zuspan**, a research fellow at the U.S. Forest Service Pacific Northwest Research Station where I use **remote sensing**, **machine learning**, and **open-source** software to [study](/research) post-fire forests. Sometimes I build [things](/projects), and sometimes I [write](/blog) about:
+I'm **Aaron Zuspan**, a researcher at Oregon State University where I use **remote sensing**, **machine learning**, and **open-source** software to [study](/research) post-fire forests. Sometimes I build [things](/projects), and sometimes I [write](/blog) about:
 
 - 🐍 [Python](/tag/python)
 - 🧮 [Algorithms](/tag/algorithms)
