@@ -34,10 +34,10 @@ Imagine we want to calculate slope for the center pixel of a 3x3 pixel neighborh
 
 The first term in the Horn algorithm, the east-west gradient $\frac{dz}{dx}$, describes how elevation changes between the east and west side of the pixel neighborhood. To solve it, we'll break it down into the change in elevation $dz$ over the horizontal distance $dx$.
 
-The vertical distance between pixels, $dz$, is calculated with the following equation, where the northwest pixel in the neighborhood is labeled $z_{nw}$, the southwest pixel is labeled $z_{sw}$, and so on.
+The vertical distance between pixels, $dz$, is calculated with the following equation, where the northeast pixel in the neighborhood is labeled $z_{ne}$, the southeast pixel is labeled $z_{se}$, and so on.
 
 $$
-dz = \frac{(z_{nw} + z_{sw} + 2z_{w}) - (z_{ne} + z_{se} + 2z_{e})}{8}
+dz = \frac{(z_{ne} + z_{se} + 2z_{e}) - (z_{nw} + z_{sw} + 2z_{w})}{8}
 $$
 
 There are a few things to notice in the equation above.
@@ -49,7 +49,7 @@ Here's $dz$ in code:
 
 
 ```python
-dz = ((w[0][0] + w[1][0] * 2 + w[2][0]) - (w[0][2] + w[1][2] * 2 + w[2][2])) / 8
+dz = ((w[0][2] + w[1][2] * 2 + w[2][2]) - (w[0][0] + w[1][0] * 2 + w[2][0])) / 8
 ```
 
 The horizontal distance between pixels, $dx$, is simply the raster resolution (for this example, 30).
@@ -71,7 +71,7 @@ dz_dx = dz / dx
 The second term in the Horn algorithm, the north-south gradient $\frac{dz}{dy}$, describes how elevation changes between the north and south side of the pixel neighborhood. It's solution is nearly identical to the east-west gradient, after swapping in the appropriate pixels.
 
 $$
-dz = \frac{(z_{sw} + z_{se} + 2z_{s}) + (z_{nw} + z_{ne} + 2z_{n})}{8}
+dz = \frac{(z_{sw} + z_{se} + 2z_{s}) - (z_{nw} + z_{ne} + 2z_{n})}{8}
 $$
 
 And in code:
@@ -125,7 +125,7 @@ For convenience, let's simplify the code above and package it into a function th
 
 ```python
 def pixel_slope(w, resolution):
-    dz_dx = ((w[0][0] + w[1][0] * 2 + w[2][0]) - (w[0][2] + w[1][2] * 2 + w[2][2])) / (8 * resolution)
+    dz_dx = ((w[0][2] + w[1][2] * 2 + w[2][2]) - (w[0][0] + w[1][0] * 2 + w[2][0])) / (8 * resolution)
     dz_dy = ((w[2][0] + w[2][1] * 2 + w[2][2]) - (w[0][0] + w[0][1] * 2 + w[0][2])) / (8 * resolution)
     
     return np.arctan(np.sqrt(dz_dx ** 2 + dz_dy ** 2)) * (180 / np.pi)
@@ -163,21 +163,18 @@ Finally, let's see what our slope map looks like, with flat areas in blue and st
 Aspect is closely related to slope, describing orientation rather than steepness. Since we've already implemented the Horn slope algorithm, we'll use that for calculating aspect as well, with the following equation.
 
 $$
-aspect = \arctan2 \left( \frac{dz}{dx} , \frac{dz}{dy} \right)
+aspect = \arctan2 \left(  \frac{dz}{dy}, -\frac{dz}{dx} \right)
 $$
 
-The east-west and north-south gradients, $\frac{dz}{dx}$ and $\frac{dz}{dy}$ respectiely, are calculated identically to slope. The only difference is that instead of taking the square root of their sum to get the overall slope, we use the arctangent to calculate the angle between them.
-
-Here's that equation in code, plus conversion to degrees and rescaling to compass bearings:
-
+The east-west and north-south gradients, $\frac{dz}{dx}$ and $\frac{dz}{dy}$ respectiely, are calculated identically to slope. The only difference is that instead of taking the square root of their sum to get the overall slope, we use the arctangent to calculate the angle between them. This gives us the angle counter-clockwise from East; by convention, we'll convert that to compass bearings clockwise from North and then convert to degrees:
 
 ```python
 def pixel_aspect(w, resolution):
     """Calculate the aspect of a pixel in degrees given its 3x3 neighborhood `w` and cell resolution."""
-    dz_dx = ((w[0][0] + w[1][0] * 2 + w[2][0]) - (w[0][2] + w[1][2] * 2 + w[2][2])) / (8 * resolution)
+    dz_dx = ((w[0][2] + w[1][2] * 2 + w[2][2]) - (w[0][0] + w[1][0] * 2 + w[2][0])) / (8 * resolution)
     dz_dy = ((w[2][0] + w[2][1] * 2 + w[2][2]) - (w[0][0] + w[0][1] * 2 + w[0][2])) / (8 * resolution)
     
-    aspect = np.arctan2(dz_dy, dz_dx) * (180 / np.pi)
+    aspect = np.arctan2(dz_dy, -dz_dx) * (180 / np.pi)
     # Convert to compass bearings 0 - 360
     aspect = 450 - aspect if aspect > 90 else 90 - aspect
 
