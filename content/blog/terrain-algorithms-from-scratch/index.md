@@ -1,6 +1,6 @@
 +++
 title = "Terrain Algorithms from Scratch"
-tags = ["python", "algorithms"]
+tags = ["python", "algorithms", "geospatial"]
 date = "2022-08-05"
 description = "Slope, aspect, and hillshading are ubiquitous in spatial analysis, but how are they made? Let's implement them from scratch in Python to figure out."
 aliases = ["/blog/terrain_from_scratch"]

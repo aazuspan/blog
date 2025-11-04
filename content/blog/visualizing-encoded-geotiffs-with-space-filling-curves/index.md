@@ -2,7 +2,7 @@
 title = "Visualizing Encoded GeoTIFFs with Space-Filling Curves"
 date = "2025-08-25T13:55:17.302321"
 description = "Using Hilbert space-filling curves to visualize the effects of block sizes, interleaving, and compression on GeoTIFF file structure."
-tags = ["geospatial", "algorithm"]
+tags = ["geospatial", "algorithms"]
 +++
 
 
