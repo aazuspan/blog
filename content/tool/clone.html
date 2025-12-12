@@ -1,0 +1,200 @@
++++
+title = "Clone"
+description = "Generate git clone commands."
+date = "2025-12-12"
++++
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Clone</title>
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        background-color: #f9f9f9;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .input-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    #url { flex: 5.4; min-width: 0; }
+    #branch { flex: 1.0; min-width: 0; }
+    #method, #tool { flex: 0 0 80px; }
+    input, select {
+        padding: 6px;
+        font-size: 0.9rem;
+        border: 1px solid #d7e1ec;
+        border-radius: 6px;
+        background-color: #fbfdff;
+        min-width: 0;
+    }
+    input:focus, select:focus { outline: none; border-color: #7aa7ff; box-shadow: 0 4px 14px rgba(47,84,255,0.08); }
+    input.error { border-color: #e74c3c; background: #fff5f5; }
+    #error { color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .output-row {
+        display: flex;
+        align-items: center;
+        margin-top: 1rem;
+        position: relative;
+        width: 100%;
+    }
+    #output {
+        flex: 1;
+        padding: 0.8rem;
+        background: #ffffff;
+        color: #1b1b1b;
+        border-radius: 8px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+        font-size: 1rem;
+        min-height: 2.8rem;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        position: relative;
+        overflow-x: auto;
+        white-space: nowrap;
+        outline: 1px dashed #7aa7ff;
+        transition: background-color 1.6s ease-out;
+    }
+    #output::before {
+        content: '$';
+        user-select: none;
+        margin-right: 0.4rem;
+        color: #9ca3af;
+    }
+    #output.flash {
+        background-color: #e0f0ff;
+        transition: background-color 0s;
+    }
+    #output:hover {
+        outline: 1px solid #7aa7ff;
+        box-shadow: 0 4px 14px rgba(47,84,255,0.08);
+    }
+    #copied-feedback {
+        position: absolute;
+        right: 0.8rem;
+        color: #252525;
+        font-size: 0.9rem;
+        user-select: none;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+</style>
+</head>
+<body>
+    <h1>Clone</h1>
+    <div class="card">
+        <form oninput="buildCommand()" onsubmit="return false;">
+            <div class="input-row">
+                <input id="url" type="text" title="Repository URL" />
+                <input id="branch" type="text" placeholder="branch" />
+                <select id="method">
+                    <option value="ssh">SSH</option>
+                    <option value="https">HTTPS</option>
+                </select>
+                <select id="tool">
+                    <option value="git">git</option>
+                    <option value="jj">jj</option>
+                </select>
+            </div>
+            <div id="error"></div>
+        </form>
+
+        <div class="output-row">
+            <div id="output" aria-live="polite" title="Click to copy command">
+            </div>
+            <span id="copied-feedback">Copied!</span>
+        </div>
+        <p>Enter a repository URL to generate a clone command. Click the command to copy it to your clipboard.</p>
+    </div>
+<script>
+function parseRepo(raw) {
+  if (!raw) return null;
+  raw = raw.trim();
+  const sshMatch = raw.match(/^git@([^:]+):([^/\s]+\/[^/\s]+)(?:\.git)?$/);
+  if (sshMatch) return { host: sshMatch[1], path: '/' + sshMatch[2].replace(/\.git$/, '') };
+  try { const u = new URL(raw); return { host: u.host, path: u.pathname.replace(/\.git$/,'') }; } catch { return null; }
+}
+function buildToolCommand(tool, url, branch) {
+  switch (tool) {
+    case 'git': return `git clone ${url}` + (branch ? ` -b ${branch}` : '');
+    case 'jj': return `jj git clone ${url}` + (branch ? ` -b ${branch}` : '');
+    default: return '';
+  }
+}
+function updateQueryParams() {
+  const url = encodeURIComponent(document.getElementById('url').value);
+  const branch = encodeURIComponent(document.getElementById('branch').value);
+  const method = encodeURIComponent(document.getElementById('method').value);
+  const tool = encodeURIComponent(document.getElementById('tool').value);
+  const params = `?url=${url}&branch=${branch}&method=${method}&tool=${tool}`;
+  history.replaceState(null, '', params);
+}
+function loadFromQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const url = params.get('url') || 'https://github.com/user/repo.git';
+  const branch = params.get('branch');
+  const method = params.get('method');
+  const tool = params.get('tool');
+  if (url) document.getElementById('url').value = decodeURIComponent(url);
+  if (branch) document.getElementById('branch').value = decodeURIComponent(branch);
+  if (method) document.getElementById('method').value = decodeURIComponent(method);
+  if (tool) document.getElementById('tool').value = decodeURIComponent(tool);
+}
+function buildCommand() {
+  updateQueryParams();
+
+  const urlEl = document.getElementById('url');
+  const errorEl = document.getElementById('error');
+  const outEl = document.getElementById('output');
+  const feedback = document.getElementById('copied-feedback');
+  const raw = urlEl.value.trim();
+  const method = document.getElementById('method').value;
+  const tool = document.getElementById('tool').value;
+  const branch = document.getElementById('branch').value.trim();
+  const parsed = parseRepo(raw);
+  if (!raw || !parsed || !parsed.host || !/^\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(parsed.path)) {
+    urlEl.classList.add('error');
+    errorEl.textContent = 'Enter a valid repository URL (e.g., https://github.com/user/repo.git).';
+    outEl.dataset.cmd = '';
+    feedback.style.opacity = '0';
+    outEl.textContent = '';
+    return;
+  }
+  urlEl.classList.remove('error');
+  errorEl.textContent = '';
+  let cloneUrl = method === 'https' ? `https://${parsed.host}${parsed.path}.git` : `git@${parsed.host}:${parsed.path.slice(1)}.git`;
+  let cmd = buildToolCommand(tool, cloneUrl, branch);
+  outEl.dataset.cmd = cmd;
+  outEl.textContent = cmd;
+}
+['input','change','blur'].forEach(ev => document.getElementById('url').addEventListener(ev, buildCommand));
+document.getElementById('output').addEventListener('click', async () => {
+  const outEl = document.getElementById('output');
+  const feedback = document.getElementById('copied-feedback');
+  const text = outEl.dataset.cmd;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    feedback.style.opacity = '1';
+    outEl.classList.add('flash');
+    setTimeout(() => {
+      outEl.classList.remove('flash');
+    }, 250);
+    setTimeout(() => feedback.style.opacity = '0', 1600);
+  } catch {}
+});
+loadFromQueryParams();
+buildCommand();
+</script>
+</body>
+</html>
