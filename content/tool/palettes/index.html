@@ -1,0 +1,402 @@
++++
+title = "Palettes"
+description = "Search and copy color palettes."
+date = "2025-12-12"
++++
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Palettes</title>
+    <style>
+        .tool-container {
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        #search {
+            font-size: 16px;
+            padding: 8px;
+            flex: 2;
+            border: 1px solid #ccc;
+            border-radius: 6px
+        }
+
+        #sampleCount,
+        #reverseToggle {
+            font-size: 14px;
+            padding: 6px;
+        }
+
+        .palette {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .palette-name {
+            flex: 0 0 140px;
+        }
+
+        .ramp {
+            flex: 1;
+            height: 32px;
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .ramp:hover {
+            outline: 2px solid #7aa7ff;
+            box-shadow: 0 4px 14px rgba(47,84,255,0.4);
+        }
+
+        .ramp.flash {
+            background-color: #e0f0ff;
+            outline: 3px solid #7aa7ff;
+            transition: background-color 0s;
+        }
+
+        .swatch {
+            flex: 1;
+        }
+
+    input, select {
+        padding: 6px;
+        font-size: 0.9rem;
+        border: 1px solid #d7e1ec;
+        border-radius: 6px;
+        background-color: #fbfdff;
+        min-width: 0;
+    }
+    input:focus, select:focus { outline: none; border-color: #7aa7ff; box-shadow: 0 4px 14px rgba(47,84,255,0.08); }
+
+    /* Customize the label (the container) */
+    .checkbox-container {
+        flex: 1;
+        display: inline-block;
+        position: relative;
+        padding-left: 35px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    /* Hide the browser's default checkbox */
+    input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: #ffffff;
+        border: 1px solid #d7e1ec;
+        border-radius: 6px;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #f0f0f0;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    } 
+
+    .pin-button {
+        flex: 0 0 auto;
+        color: #e0e0e0;
+        font-size: 18px;
+        background: none;
+        border: none;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        user-select: none;
+        padding: 0;
+        margin-left: 8px;
+    }
+
+    .pin-button:hover {
+        color: #2196F3;
+    }
+
+    .pin-button.pinned {
+        color: #4baeff;
+    }
+
+    #error {
+        color: #e74c3c;
+        margin-top: 1rem;
+        background: #fff5f5;
+        padding: 1rem;
+        border: 1px solid #e74c3c;
+        border-radius: 6px;
+    }
+
+    .help-text {
+        font-size: 0.9rem;
+        color: #555555;
+        margin: 1rem 0;
+    }
+    </style>
+</head>
+
+<body>
+    <h1>Palettes</h1>
+    <div class="tool-container">
+    <form id="controls" onsubmit="return false;" onchange="render()" oninput="render()">
+        <input id="search" placeholder="Search palettes..." />
+        <label>Steps
+            <select id="sampleCount">
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option selected>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+            </select>
+        </label>
+
+        <label>Format
+            <select id="format">
+                <option value="hex">Hex</option>
+                <option value="rgb">RGB</option>
+                <option value="rgba">RGBA</option>
+            </select>
+        </label>
+
+        <label class="checkbox-container" id="reverseContainer">Reverse
+            <input type="checkbox" id="reverseToggle">
+            <span class="checkmark"></span>
+        </label>
+    </form>
+    
+    <p class="help-text">
+        Click a palette to copy its JSON color array to the clipboard in the selected format.
+    </p>
+
+    <div id="container"></div>
+
+    <div id="error" style="display:none;">
+        Uh oh! Something went wrong loading the colormap data.
+        Please try refreshing the page to load it again.
+        If the problem persists, please <a href="https://github.com/aazuspan/blog/issues">open an issue report on Github</a>.
+    </div>
+
+    <p>
+        Palettes are generated from Matplotlib lookup tables. For license information, see the <a href="https://matplotlib.org/stable/users/license.html">Matplotlib License</a>.
+    </p>
+
+    </div>
+    <script>
+        const errorDiv = document.getElementById('error');
+
+        fetch('cmap_lut_rgba.json')
+            .then(response => response.json())
+            .then(data => {
+                window.CMAPS = data;
+                errorDiv.style.display = 'none';
+                render();
+            })
+            .catch(error => {
+                console.error('Error loading colormap data:', error);
+                errorDiv.style.display = 'block';
+            });
+
+        const container = document.getElementById('container');
+        const search = document.getElementById('search');
+        const sampleCount = document.getElementById('sampleCount');
+        const reverseToggle = document.getElementById('reverseToggle');
+
+        function render() {
+            const favorites = JSON.parse(localStorage.getItem('pinnedPalettes') || '[]');
+            const q = search.value.trim().toLowerCase();
+            container.innerHTML = '';
+            const n = parseInt(sampleCount.value, 10) || 3;
+
+            // CMAPS is an object mapping from colormap names to lookup tables stored as
+            // arrays of 4-element RGBA arrays in the range [0, 1].
+            Object.entries(CMAPS)
+                .filter(([name]) => name.toLowerCase().includes(q))
+                .sort(([a], [b]) => {
+                    // Favorites first, then dictionary order
+                    const aFav = favorites.includes(a) ? 0 : 1;
+                    const bFav = favorites.includes(b) ? 0 : 1;
+                    if (aFav !== bFav) return aFav - bFav;
+                    // Default to original dictionary order, which is not alphabetical
+                    return 0;
+                })
+                .forEach(([name, lut]) => {
+                    const sampled = interpolatePalette(lut, n);
+                    const colors = reverseToggle.checked ? [...sampled].reverse() : sampled;
+
+                    const row = document.createElement('div');
+                    row.className = 'palette';
+
+                    const label = document.createElement('div');
+                    label.className = 'palette-name';
+                    label.textContent = name;
+
+                    const ramp = document.createElement('div');
+                    ramp.className = 'ramp';
+                    ramp.title = 'Click to copy array';
+                    ramp.addEventListener('click', () => {
+                        const format = document.getElementById('format').value;
+                        const formatted = colors.map(color => {
+                            switch (format) {
+                                case 'hex':
+                                    return formatHex(color);
+                                case 'rgb':
+                                    return formatRgb(color);
+                                case 'rgba':
+                                    return formatRgba(color);
+                                default:
+                                    return color;
+                            }
+                        });
+
+                        navigator.clipboard.writeText(JSON.stringify(formatted));
+                        label.innerText = 'Copied!';
+                        ramp.classList.add('flash');
+                        setTimeout(() => { 
+                            ramp.classList.remove('flash'); 
+                            label.innerText = name;
+                        }, 800);
+                    });
+
+                    colors.forEach(color => {
+                        const sw = document.createElement('div');
+                        sw.className = 'swatch';
+                        sw.style.background = formatHex(color);
+                        ramp.appendChild(sw);
+                    });
+
+                    const pinButton = document.createElement('button');
+                    pinButton.className = 'pin-button';
+                    pinButton.innerText = '♥';
+                    
+                    if (favorites.includes(name)) {
+                        pinButton.title = 'Unpin this palette';
+                        pinButton.classList.add('pinned');
+                    } else {
+                        pinButton.title = 'Pin this palette';
+                    }
+
+                    pinButton.addEventListener('click', () => {
+                        let updatedFavorites = JSON.parse(localStorage.getItem('pinnedPalettes') || '[]');
+                        if (updatedFavorites.includes(name)) {
+                            updatedFavorites = updatedFavorites.filter(n => n !== name);
+
+                        } else {
+                            updatedFavorites.push(name);
+                        }
+                        localStorage.setItem('pinnedPalettes', JSON.stringify(updatedFavorites));
+                        render();
+                    });
+
+                    row.appendChild(ramp);
+                    row.appendChild(label);
+                    row.appendChild(pinButton);
+                    container.appendChild(row);
+                });
+        }
+
+        function interpolatePalette(lut, n) {
+            const result = [];
+            const step = (lut.length - 2) / (n - 1);
+            for (let i = 0; i < n; i++) {
+                const idx = i * step;
+                const lower = Math.floor(idx);
+                const upper = Math.ceil(idx);
+                if (lower === upper) {
+                    const color = lut[lower].map(v => Math.round(v * 255));
+                    result.push(color);
+                } else {
+                    const t = idx - lower;
+                    const color = [0, 1, 2, 3].map(c =>
+                        Math.round(((1 - t) * lut[lower][c] + t * lut[upper][c]) * 255)
+                    );
+                    result.push(color);
+                }
+            }
+            return result;
+        }
+
+        function formatRgba(color) {
+            return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${ (color[3]).toFixed(2) })`;
+        }
+
+        function formatRgb(color) {
+            return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        }
+
+        function formatHex(color) {
+            const r = color[0].toString(16).padStart(2, '0');
+            const g = color[1].toString(16).padStart(2, '0');
+            const b = color[2].toString(16).padStart(2, '0');
+            return `#${r}${g}${b}`;
+        }
+    </script>
+</body>
+
+</html>
