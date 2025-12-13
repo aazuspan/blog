@@ -1,0 +1,16 @@
+{{ define "main" }}
+<content>
+    <h1>Blog</h1>
+    <small>
+        <div>
+            Filtering <a href="{{ "blog" | relURL }}">all posts</a> with topic <b>{{ .Title }}</b>
+        </div>
+    </small>
+    <hr>
+
+    {{ partial "/lists/base.html" (dict
+      "ctx" .
+      "kind" "blog"
+  ) }}
+</content>
+{{ end }}

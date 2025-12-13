@@ -1,0 +1,16 @@
+{{ define "main" }}
+
+  {{ if .Data.Singular }}
+  <small>
+      <div>
+          Filtering <a href="{{ " blog" | relURL }}">all posts</a> with topic <b>{{ .Title }}</b>
+      </div>
+  </small>
+  {{ end }}
+
+  {{ partial "lists/base.html" (dict
+      "ctx" .
+      "kind" "blog"
+  ) }}
+{{ end }}
+

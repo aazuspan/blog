@@ -1,0 +1,10 @@
+{{ define "main" }}
+<content>
+  <h1>Tools</h1>
+  <p>Interactive tools you can run in the browser.</p>
+  {{ partial "lists/base.html" (dict
+  "ctx" .
+  "template" "lists/tool_preview.html"
+  ) }}
+</content>
+{{ end }}

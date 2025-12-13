@@ -1,0 +1,10 @@
+{{ define "main" }}
+<content>
+    <h1>Blog</h1>
+        {{ partial "lists/base.html" (dict
+            "ctx" .
+            "template" "lists/blog_preview.html"
+            "include_filters" true
+        ) }}      
+</content>
+{{ end }}

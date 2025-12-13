@@ -1,0 +1,9 @@
+<small>
+    <div>
+        <b>Filter by topic: </b>
+        {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+        <a href="/tag/{{ $name | urlize }}">{{ $name | humanize }}</a> {{ $taxonomy.Count }} ·
+        {{end}}
+    </div>
+</small>
+<hr>

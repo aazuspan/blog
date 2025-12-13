@@ -1,0 +1,21 @@
+{{ $ctx := .ctx }}
+{{ $include_filters := .include_filters | default false }}
+{{ $template := .template | default "lists/default_preview.html" }}
+
+<header>
+  {{ if $include_filters }}
+    {{ partial "lists/tag_filters.html" $ctx }}
+  {{ end }}
+</header>
+
+
+<ul class="entry-list">
+  {{ range $ctx.Pages }}
+    {{ partial $template . }}
+  {{ else }}
+    <li>
+      No posts yet
+    </li>
+  {{ end }}
+</ul>
+
