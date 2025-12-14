@@ -8,9 +8,10 @@
     </small>
     <hr>
 
-    {{ partial "/lists/base.html" (dict
+    {{ partial "lists/base.html" (dict
       "ctx" .
       "kind" "blog"
+            "enable_search" false
   ) }}
 </content>
 {{ end }}

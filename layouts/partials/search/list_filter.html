@@ -1,0 +1,92 @@
+{{/*
+  Client-side list filter.
+
+  Params (dict):
+    input_id: string (required-ish)
+    placeholder: string
+    list_selector: string (default: .entry-list)
+    item_selector: string (default: li)
+    empty_text: string (default: No matches)
+*/}}
+
+{{ $inputID := .input_id | default "list-search" }}
+{{ $placeholder := .placeholder | default "Search" }}
+{{ $listSelector := .list_selector | default ".entry-list" }}
+{{ $itemSelector := .item_selector | default "li" }}
+{{ $emptyText := .empty_text | default "No matches" }}
+
+<div class="list-search">
+  <input
+    id="{{ $inputID }}"
+    type="search"
+    inputmode="search"
+    autocomplete="off"
+    placeholder="{{ $placeholder }}"
+    aria-label="{{ $placeholder }}"
+  />
+</div>
+
+<script>
+(() => {
+  const inputId = {{ printf "%q" $inputID | safeJS }};
+  const listSelector = {{ printf "%q" $listSelector | safeJS }};
+  const itemSelector = {{ printf "%q" $itemSelector | safeJS }};
+  const emptyText = {{ printf "%q" $emptyText | safeJS }};
+
+  const normalize = (value) => {
+    const str = (value || "").toString().toLowerCase();
+    const normalized = (typeof str.normalize === "function") ? str.normalize("NFKD") : str;
+    return normalized.replace(/[\u0300-\u036f]/g, "").trim();
+  };
+
+  const init = () => {
+    const input = document.getElementById(inputId);
+    if (!input || input.dataset.searchInitialized === "true") return;
+
+    const scope = input.closest("[data-search-scope]") || document;
+    const list = scope.querySelector(listSelector);
+    if (!list) return;
+
+    const allLis = Array.from(list.querySelectorAll(itemSelector));
+    const items = allLis.filter((li) => !li.hasAttribute("data-search-skip") && !li.hasAttribute("data-search-empty"));
+
+    let emptyEl = list.querySelector("[data-search-empty]");
+    if (!emptyEl) {
+      emptyEl = document.createElement("li");
+      emptyEl.setAttribute("data-search-empty", "");
+      emptyEl.textContent = emptyText;
+      emptyEl.style.display = "none";
+      list.appendChild(emptyEl);
+    }
+
+    const update = () => {
+      const query = normalize(input.value);
+
+      let shown = 0;
+      for (const li of items) {
+        const haystack = normalize(li.getAttribute("data-search-text") || li.textContent);
+        const match = !query || haystack.includes(query);
+        li.style.display = match ? "" : "none";
+        if (match) shown++;
+      }
+
+      for (const li of allLis) {
+        if (!li.hasAttribute("data-search-skip")) continue;
+        li.style.display = query ? "none" : "";
+      }
+
+      emptyEl.style.display = (query && shown === 0) ? "" : "none";
+    };
+
+    input.addEventListener("input", update);
+    input.dataset.searchInitialized = "true";
+    update();
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>

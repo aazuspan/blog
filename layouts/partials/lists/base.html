@@ -1,21 +1,34 @@
 {{ $ctx := .ctx }}
 {{ $include_filters := .include_filters | default false }}
 {{ $template := .template | default "lists/default_preview.html" }}
+{{ $enable_search := .enable_search | default false }}
+{{ $search_placeholder := .search_placeholder | default "Filter by name or description..." }}
+{{ $search_input_id := .search_input_id | default "list-search" }}
 
-<header>
-  {{ if $include_filters }}
-    {{ partial "lists/tag_filters.html" $ctx }}
+<div data-search-scope>
+  {{ if $enable_search }}
+    {{ partial "search/list_filter.html" (dict
+      "input_id" $search_input_id
+      "placeholder" $search_placeholder
+      "list_selector" ".entry-list"
+      "item_selector" "li"
+    ) }}
   {{ end }}
-</header>
+  <header>
+    {{ if $include_filters }}
+      {{ partial "lists/tag_filters.html" $ctx }}
+    {{ end }}
+  </header>
 
 
-<ul class="entry-list">
-  {{ range $ctx.Pages }}
-    {{ partial $template . }}
-  {{ else }}
-    <li>
-      No posts yet
-    </li>
-  {{ end }}
-</ul>
+  <ul class="entry-list">
+    {{ range $ctx.Pages }}
+      {{ partial $template . }}
+    {{ else }}
+      <li data-search-skip>
+        No posts yet
+      </li>
+    {{ end }}
+  </ul>
+</div>
 
