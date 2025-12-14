@@ -320,8 +320,7 @@ date = "2025-12-12T16:00:00Z"
                     return 0;
                 })
                 .forEach(([name, lut]) => {
-                    const sampled = interpolatePalette(lut, n);
-                    const colors = reverseToggle.checked ? [...sampled].reverse() : sampled;
+                    const colors = indexPalette(lut, n, reverseToggle.checked);
 
                     const row = document.createElement('div');
                     row.className = 'palette';
@@ -395,25 +394,39 @@ date = "2025-12-12T16:00:00Z"
                 });
         }
 
-        function interpolatePalette(lut, n) {
-            const result = [];
-            const step = (lut.length - 2) / (n - 1);
-            for (let i = 0; i < n; i++) {
-                const idx = i * step;
-                const lower = Math.floor(idx);
-                const upper = Math.ceil(idx);
-                if (lower === upper) {
-                    const color = lut[lower].map(v => Math.round(v * 255));
-                    result.push(color);
-                } else {
-                    const t = idx - lower;
-                    const color = [0, 1, 2, 3].map(c =>
-                        Math.round(((1 - t) * lut[lower][c] + t * lut[upper][c]) * 255)
-                    );
-                    result.push(color);
-                }
+        function indexPalette(lut, n, reverse) {
+            const N = lut.length - 3;
+            let colors = [];
+
+            // For small palettes, index with wraparound to repeat colors rather than 
+            // interpolating or using nearest neighbors.
+            if (n > N) {
+                [...Array(n).keys()].forEach(i => 
+                    colors.push(lut[i % N].map(v => Math.round(v * 255))
+                ));
             }
-            return result;
+
+            // For large palettes, interpolate linearly between LUT entries.
+            else {
+                [...Array(n).keys()].forEach(i => {
+                    const t = i / (n - 1);
+                    const f = t * (N - 1);
+                    const i0 = Math.floor(f);
+                    const i1 = Math.min(Math.ceil(f), N - 1);
+                    const frac = f - i0;
+                    const c0 = lut[i0];
+                    const c1 = lut[i1];
+                    const c = [
+                        Math.round(((1 - frac) * c0[0] + frac * c1[0]) * 255),
+                        Math.round(((1 - frac) * c0[1] + frac * c1[1]) * 255),
+                        Math.round(((1 - frac) * c0[2] + frac * c1[2]) * 255),
+                        Math.round(((1 - frac) * c0[3] + frac * c1[3]) * 255),
+                    ];
+                    colors.push(c);
+                });
+            }
+
+            return reverse ? colors.reverse() : colors;
         }
 
         function formatRgba(color) {
