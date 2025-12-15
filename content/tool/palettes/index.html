@@ -304,7 +304,8 @@ date = "2025-12-12T16:00:00Z"
                 search.value = params.get('q');
             }
             if (params.has('n')) {
-                sampleCount.value = params.get('n');
+                // Clamp steps to avoid locking up the browser
+                sampleCount.value = Math.min(params.get('n'), 64);
             }
             if (params.has('fmt')) {
                 formatSelect.value = params.get('fmt');
