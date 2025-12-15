@@ -285,12 +285,44 @@ date = "2025-12-12T16:00:00Z"
         const sampleCount = document.getElementById('sampleCount');
         const reverseToggle = document.getElementById('reverseToggle');
         const cvdSelect = document.getElementById('cvd');
+        const formatSelect = document.getElementById('format');
+
+        const updateQueryParams = () => {
+            const params = new URLSearchParams(window.location.search);
+            params.set('q', search.value);
+            params.set('n', sampleCount.value);
+            params.set('fmt', formatSelect.value);
+            params.set('rev', reverseToggle.checked ? '1' : '0');
+            params.set('cvd', cvdSelect.value);
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({}, '', newUrl);
+        };
+
+        const loadQueryParams = () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('q')) {
+                search.value = params.get('q');
+            }
+            if (params.has('n')) {
+                sampleCount.value = params.get('n');
+            }
+            if (params.has('fmt')) {
+                formatSelect.value = params.get('fmt');
+            }
+            if (params.has('rev')) {
+                reverseToggle.checked = params.get('rev') === '1';
+            }
+            if (params.has('cvd')) {
+                cvdSelect.value = params.get('cvd');
+            }
+        };
 
         function render() {
+            container.innerHTML = '';
             const favorites = JSON.parse(localStorage.getItem('pinnedPalettes') || '[]');
             const q = search.value.trim().toLowerCase();
-            container.innerHTML = '';
-            const n = parseInt(sampleCount.value, 10) || 3;
+            const n = Math.min(parseInt(sampleCount.value, 10) || 3, 64);
+            const format = formatSelect.value || 'hex';
             const cvdMode = (cvdSelect && cvdSelect.value) ? cvdSelect.value : 'none';
 
             // CMAPS is an object mapping from colormap names to lookup tables stored as
@@ -319,7 +351,6 @@ date = "2025-12-12T16:00:00Z"
                     ramp.className = 'ramp';
                     ramp.title = 'Click to copy array';
                     ramp.addEventListener('click', () => {
-                        const format = document.getElementById('format').value;
                         const formatted = colors.map(color => {
                             switch (format) {
                                 case 'hex':
@@ -378,6 +409,7 @@ date = "2025-12-12T16:00:00Z"
                     row.appendChild(pinButton);
                     container.appendChild(row);
                 });
+            updateQueryParams();
         }
 
         function indexPalette(lut, n, reverse) {
@@ -517,6 +549,9 @@ date = "2025-12-12T16:00:00Z"
                 }
             }
         }
+
+        loadQueryParams();
+        render();
     </script>
 </body>
 
