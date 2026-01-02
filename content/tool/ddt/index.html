@@ -1,0 +1,300 @@
++++
+title = "Desired Dough Temperature"
+description = "Calculate target water temperature for bread baking."
+date = "2026-01-02"
++++
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Desired Dough Temperature</title>
+<style>
+		.tool-container {
+				display: flex;
+				flex-direction: column;
+				background-color: #f9f9f9;
+				padding: 20px;
+				max-width: 800px;
+				margin: 0 auto;
+		}
+		.input-row {
+				display: flex;
+				gap: 0.5rem;
+				align-items: center;
+				margin-bottom: 0.5rem;
+				width: 100%;
+				flex-wrap: wrap;
+		}
+		.label {
+				flex: 0 0 170px;
+				font-size: 0.9rem;
+				color: #1b1b1b;
+		}
+		.control {
+				flex: 1;
+				min-width: 200px;
+		}
+		input, select {
+				padding: 6px;
+				font-size: 0.9rem;
+				border: 1px solid #d7e1ec;
+				border-radius: 6px;
+				background-color: #fbfdff;
+				min-width: 0;
+		}
+		input:focus, select:focus { outline: none; border-color: #7aa7ff; box-shadow: 0 4px 14px rgba(47,84,255,0.08); }
+		input.error { border-color: #e74c3c; background: #fff5f5; }
+		#error { color: #e74c3c; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+		.checkbox-wrap {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				user-select: none;
+		}
+		.checkbox-wrap input[type="checkbox"] {
+				width: 16px;
+				height: 16px;
+				margin: 0;
+		}
+
+		details {
+				margin-top: 0.75rem;
+				border-top: 1px solid #e6eef7;
+				padding-top: 0.5rem;
+		}
+		summary {
+				cursor: pointer;
+				font-size: 0.95rem;
+				color: #1b1b1b;
+				user-select: none;
+				margin-bottom: 0.5rem;
+		}
+
+		.output-row {
+				display: flex;
+				align-items: center;
+				margin-top: 1rem;
+				position: relative;
+				width: 100%;
+		}
+		#output {
+				flex: 1;
+				padding: 0.8rem;
+				background: #ffffff;
+				color: #1b1b1b;
+				border-radius: 8px;
+				font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+				font-size: 1rem;
+				min-height: 2.8rem;
+				display: flex;
+				align-items: center;
+				position: relative;
+				overflow-x: auto;
+				white-space: nowrap;
+				outline: 1px solid #cfcfcf;
+		}
+		#output::before {
+				content: 'Required water temperature';
+				user-select: none;
+				margin-right: 0.6rem;
+				color: #9ca3af;
+				font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+				font-size: 0.9rem;
+				white-space: nowrap;
+		}
+		#output.hot { color: #e74c3c; }
+		#output.cold { color: #2f54ff; }
+		#warning {
+				font-size: 0.9rem;
+				margin-top: 0.5rem;
+		}
+		#warning.hot { color: #e74c3c; }
+		#warning.cold { color: #2f54ff; }
+</style>
+</head>
+<body>
+		<h1>Desired Dough Temperature</h1>
+		<div class="tool-container">
+				<form oninput="recomputeFromForm()" onsubmit="return false;">
+						<div class="input-row">
+								<div class="label">Leavening</div>
+								<select id="type" class="control" aria-label="Leavening" title="Select the leavening type used in the dough. This is used to set desired dough temperature.">
+                                        <option value="sourdough">Sourdough</option>
+										<option value="yeast">Yeast</option>
+								</select>
+						</div>
+
+						<div class="input-row">
+								<div class="label">Room temperature (°F)</div>
+								<input id="room" class="control" type="number" step="1" title="Enter the current room temperature. By default, this is also used as the flour and levain temperature."/>
+						</div>
+
+						<div class="input-row">
+								<div class="label">Using stand mixer</div>
+								<label class="checkbox-wrap control" aria-label="Using stand mixer">
+										<input id="mixer" type="checkbox" title="Check if kneading in a stand mixer rather than by hand. This is used to derive the friction factor." />
+								</label>
+						</div>
+
+						<details>
+								<summary title="Click to expand and override the advanced options.">Advanced options</summary>
+								<div class="input-row">
+										<div class="label">Desired dough temp (°F)</div>
+										<input id="ddt" class="control" type="number" step="1" />
+								</div>
+								<div class="input-row">
+										<div class="label">Flour temperature (°F)</div>
+										<input id="flour" class="control" type="number" step="1" />
+								</div>
+								<div class="input-row">
+										<div class="label">Levain temperature (°F)</div>
+										<input id="levain" class="control" type="number" step="1" />
+								</div>
+								<div class="input-row">
+										<div class="label">Friction factor (°F)</div>
+										<input id="friction" class="control" type="number" step="1" />
+								</div>
+						</details>
+
+						<div id="error"></div>
+				</form>
+
+				<div class="output-row">
+						<div id="output" aria-live="polite" title="Calculated water temperature output."></div>
+				</div>
+				<div id="warning" aria-live="polite"></div>
+		</div>
+
+<script>
+const overrides = {
+	ddt: false,
+	flour: false,
+	levain: false,
+	friction: false,
+};
+
+function el(id) { return document.getElementById(id); }
+
+function parseNumber(inputEl) {
+	const raw = (inputEl.value ?? '').toString().trim();
+	if (!raw) return { ok: false, value: null };
+	const value = Number(raw);
+	return Number.isFinite(value) ? { ok: true, value } : { ok: false, value: null };
+}
+
+function derivedDefaults() {
+	const type = el('type').value;
+	const mixer = el('mixer').checked;
+	const room = parseNumber(el('room'));
+	const roomValue = room.ok ? room.value : null;
+
+	const ddt = type === 'sourdough' ? 78 : 75;
+	const flour = roomValue;
+	const levain = roomValue;
+	const friction = mixer ? 22 : 5;
+	return { ddt, flour, levain, friction };
+}
+
+function setIfNotOverridden(key, value) {
+	if (overrides[key]) return;
+	const inputEl = el(key);
+	if (value === null || value === undefined || !Number.isFinite(value)) return;
+	inputEl.value = String(value);
+}
+
+function syncDerivedInputs() {
+	const d = derivedDefaults();
+	setIfNotOverridden('ddt', d.ddt);
+	setIfNotOverridden('flour', d.flour);
+	setIfNotOverridden('levain', d.levain);
+	setIfNotOverridden('friction', d.friction);
+}
+
+function clearErrors() {
+	['room','ddt','flour','levain','friction'].forEach(id => el(id).classList.remove('error'));
+	el('error').textContent = '';
+}
+
+function clearOutputState() {
+	el('output').classList.remove('hot', 'cold');
+	el('warning').classList.remove('hot', 'cold');
+	el('warning').textContent = '';
+}
+
+function showError(message, ids = []) {
+	clearErrors();
+	clearOutputState();
+	ids.forEach(id => el(id).classList.add('error'));
+	el('error').textContent = message;
+	el('output').textContent = '';
+}
+
+function recomputeFromForm() {
+	syncDerivedInputs();
+	clearErrors();
+	clearOutputState();
+
+	const room = parseNumber(el('room'));
+	const ddt = parseNumber(el('ddt'));
+	const flour = parseNumber(el('flour'));
+	const levain = parseNumber(el('levain'));
+	const friction = parseNumber(el('friction'));
+
+	const bad = [];
+	if (!room.ok) bad.push('room');
+	if (!ddt.ok) bad.push('ddt');
+	if (!flour.ok) bad.push('flour');
+	if (!levain.ok) bad.push('levain');
+	if (!friction.ok) bad.push('friction');
+
+	if (bad.length) {
+		showError('Enter valid numbers for all temperatures.', bad);
+		return;
+	}
+
+	const rawWater = ddt.value * 4 - flour.value - room.value - levain.value - friction.value;
+	let water = rawWater;
+
+	if (rawWater > 120) {
+		water = 120;
+		el('output').classList.add('hot');
+		el('warning').classList.add('hot');
+		el('warning').textContent = '⚠️ Water temperature is too high, and might kill your leavener.';
+	} else if (rawWater < 32) {
+        water = 32;
+		el('output').classList.add('cold');
+		el('warning').classList.add('cold');
+		el('warning').textContent = '🥶 Water temperature is too low.';
+	}
+
+	el('output').textContent = `${water.toFixed(0)} °F`;
+}
+
+function markOverride(id) {
+	overrides[id] = true;
+	recomputeFromForm();
+}
+
+function initDefaults() {
+	el('type').value = 'sourdough';
+	el('room').value = '68';
+	el('mixer').checked = false;
+	syncDerivedInputs();
+	recomputeFromForm();
+}
+
+['ddt','flour','levain','friction'].forEach(id => {
+	['input','change'].forEach(ev => el(id).addEventListener(ev, () => markOverride(id)));
+});
+['type','room','mixer'].forEach(id => {
+	['input','change'].forEach(ev => el(id).addEventListener(ev, recomputeFromForm));
+});
+
+initDefaults();
+</script>
+</body>
+</html>
+
