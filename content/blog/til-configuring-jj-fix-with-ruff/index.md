@@ -7,7 +7,7 @@ tags = ["jj", "python", "til"]
 
 I wrote a recent [blog post]({{% relref "/blog/automating-pre-push-checks-with-jujutsu" %}}) about hacking together a crude version of Git hooks in the [Jujutsu VCS](https://github.com/jj-vcs/jj). While this is a helpful last resort to avoid pushing unlinted, unformatted code to a remote, Jujutsu has a much more elegant built-in tool to solve the problem of messy local commits: [`jj fix`](https://jj-vcs.github.io/jj/latest/config/#code-formatting-and-other-file-content-transformations). 
 
-Once it's configured, the `fix` command runs your formatter/linter over all of your writable[^read-only] commits, applying fixes retroactively and automatically rebasing without introducing merge conflicts. For example, say you accidentally commited some unformatted code in `oytprvlu` and then made changes on top of that in `zpztzrwl`:
+Once it's configured, the `fix` command runs your formatter/linter over all of your writable[^read-only] commits, applying fixes retroactively and automatically rebasing without introducing merge conflicts. For example, say you accidentally committed some unformatted code in `oytprvlu` and then made changes on top of that in `zpztzrwl`:
 
 ```bash
 $ jj log
@@ -53,7 +53,7 @@ This sets up two separate tools for linting and formatting `.py` files, prefixed
 
 - `--fix`: Apply lint fixes. Without this option, `jj fix` would still run linting but abort on errors.
 - `--preview`: Enables some additional rules and fixes.
-- `--quiet`: Supresses linter summary diagnostics that are mostly redundant with those reported by `jj`. If there are unfixable errors, `ruff` will still report those.
+- `--quiet`: Suppresses linter summary diagnostics that are mostly redundant with those reported by `jj`. If there are unfixable errors, `ruff` will still report those.
 - `--stdin-filename=$path`: Passes the name of the file being checked to Ruff so that it can accurately report unfixable errors.
 - `-`: This is the **critical option** that tells Ruff to check `stdin` rather than a file.
 

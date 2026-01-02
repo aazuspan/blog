@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
 ## Results and Limitations
 
-After migration, a few test runs confirmed that the models succcessfully predict and evaluate in `2.16.2`, generating identical results to the original `2.13.0` runs -- mission accomplished. The only thing that was lost in the migration seems to be the learned weights for the Adam optimizer, meaning that warm-start training might take a few epochs to stabilize. There may be a way to preserve those weights across the major version change, but it wasn't a priority for our use case, so I didn't put much effort into it.
+After migration, a few test runs confirmed that the models successfully predict and evaluate in `2.16.2`, generating identical results to the original `2.13.0` runs -- mission accomplished. The only thing that was lost in the migration seems to be the learned weights for the Adam optimizer, meaning that warm-start training might take a few epochs to stabilize. There may be a way to preserve those weights across the major version change, but it wasn't a priority for our use case, so I didn't put much effort into it.
 
 The final piece of the puzzle, since we track and retrieve models with [Weights and Biases](https://wandb.ai), was to identify and upload the new runs using [artifact aliases](https://docs.wandb.ai/models/registry/aliases), allowing us to match the devcontainer version to the model version.
 
