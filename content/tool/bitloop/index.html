@@ -1,0 +1,684 @@
++++
+title = "bitloop"
+description = "A drum loop sequencer from hex strings."
+date = "2026-02-22"
++++
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>bitloop</title>
+<style>
+    .tool-container {
+        --label-col-width: 64px;
+        --grid-gap: 0.35rem;
+        font-family: "Courier New", Courier, monospace;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        border: 1px solid #b3b3b3;
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: 86px;
+    }
+
+    .field.sequence-field {
+        flex: 1;
+        min-width: 260px;
+    }
+
+    .sequence-input-wrap {
+        display: flex;
+        gap: var(--grid-gap);
+        align-items: center;
+    }
+
+    .sequence-input-wrap #sequence {
+        flex: 1;
+    }
+
+    input,
+    button {
+        padding: 8px;
+        font-size: 0.95rem;
+        border: 1px solid #111111;
+        border-radius: 0;
+        background-color: #ffffff;
+        color: #111111;
+        min-width: 0;
+        font-family: inherit;
+    }
+
+    input:focus,
+    button:focus {
+        outline: none;
+        box-shadow: inset 0 0 0 1px #111111;
+    }
+
+    #playPause {
+        cursor: pointer;
+        background: #ffffff;
+        font-weight: 700;
+        min-width: 64px;
+    }
+
+    #playPause:hover {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    #playPause.playing {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    #shuffle {
+        cursor: pointer;
+        background: #ffffff;
+        min-width: 64px;
+    }
+
+    #shuffle:hover {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    #sequence {
+        text-transform: uppercase;
+        font-family: inherit;
+        letter-spacing: 0.06em;
+    }
+
+    #sequenceLength {
+        width: var(--label-col-width);
+        box-sizing: border-box;
+        text-align: center;
+        padding-left: 6px;
+        padding-right: 6px;
+        border: none;
+        color: grey;
+    }
+
+    #stepGrid {
+        display: grid;
+        grid-template-columns: var(--label-col-width) repeat(16, minmax(0, 1fr));
+        gap: var(--grid-gap);
+    }
+
+    .step-spacer {
+        height: 1px;
+    }
+
+    #sampleState {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .sample-row {
+        display: grid;
+        grid-template-columns: var(--label-col-width) repeat(16, minmax(0, 1fr));
+        gap: var(--grid-gap);
+        align-items: center;
+    }
+
+    .sample-label {
+        font-size: 0.86rem;
+        color: #111111;
+    }
+
+    .sample-cell {
+        aspect-ratio: 1 / 1;
+        border-radius: 0;
+        border: 1px solid #b8b8b8;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        line-height: 1;
+        box-sizing: border-box;
+    }
+
+    .sample-cell.downbeat {
+        background: #f2f2f2;
+    }
+
+    .sample-cell.on {
+        font-weight: 700;
+    }
+
+    .sample-cell.active {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    .step {
+        appearance: none;
+        width: 100%;
+        user-select: none;
+        text-align: center;
+        padding: 0.45rem 0;
+        border-radius: 0;
+        background: #ffffff;
+        color: #111111;
+        font-family: inherit;
+        font-size: 0.86rem;
+        border: 1px solid #b8b8b8;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .step.downbeat {
+        background: #f2f2f2;
+    }
+
+    .step:hover {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    .step:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 1px #111111;
+    }
+
+    .step.active {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    .step:disabled {
+        cursor: default;
+        opacity: 0.5;
+        text-decoration: none;
+    }
+
+    .step:disabled:hover {
+        background: #ffffff;
+        color: #111111;
+    }
+
+    summary {
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .help-text {
+        font-size: 0.8rem;
+        color: #474747;
+        margin: 8px 0 0;
+    }
+</style>
+</head>
+<body>
+    <h1>bitloop</h1>
+    <div class="tool-container">
+        <div class="controls">
+            <div class="field sequence-field">
+                <div class="sequence-input-wrap">
+                    <input id="sequenceLength" type="text" value="16/16" readonly aria-label="Sequence length" title="Current sequence length" />
+                    <input id="sequence" type="text" maxlength="16" spellcheck="false" placeholder="e.g. 8A248A24" />
+                    <button id="shuffle" type="button" title="Randomize sequence">RAND</button>
+                    <button id="playPause" type="button" aria-pressed="false">PLAY</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="stepGrid" aria-hidden="true"></div>
+        <div id="sampleState" aria-hidden="true"></div>
+
+        <details>
+        <summary>Help</summary>
+        <div class="help-text">
+            Program drum loops with <a href="https://en.wikipedia.org/wiki/Hexadecimal">hex strings</a>. 
+            Each character encodes one 1/16 time step in 4 bits, where each bit triggers a different sample. For example:
+            <ul>
+                <li><code>8</code> = 1000 = KICK</li>
+                <li><code>2</code> = 0010 = CLOSED HI-HAT</li>
+                <li><code>A</code> = 1010 = KICK + CLOSED HI-HAT</li>
+            </ul>
+
+            Try a simple pattern like <a href="?seq=80204020">80204020</a> or hit <code>RAND</code> for a random sequence.
+        </div>
+        </details>
+
+    </div>
+<script>
+(() => {
+    const sequenceLengthInput = document.getElementById('sequenceLength');
+    const sequenceInput = document.getElementById('sequence');
+    const shuffleBtn = document.getElementById('shuffle');
+    const playPauseBtn = document.getElementById('playPause');
+    const stepGrid = document.getElementById('stepGrid');
+    const sampleState = document.getElementById('sampleState');
+
+    const instrumentRows = [
+        { label: 'KICK', bit: 0b1000 },
+        { label: 'SNARE', bit: 0b0100 },
+        { label: 'CL HH', bit: 0b0010 },
+        { label: 'OP HH', bit: 0b0001 },
+    ];
+
+    const sampleFiles = {
+        kick: 'kick.wav',
+        snare: 'snare.wav',
+        hihat: 'hihat.wav',
+        openhat: 'openhat.wav',
+    };
+
+    let audioCtx = null;
+    let sampleBuffers = null;
+    let isPlaying = false;
+    let schedulerId = null;
+    let nextStepTime = 0;
+    let currentStep = 0;
+    let heldStepIndex = null;
+    let heldRepeatTimer = null;
+    let heldNextWhen = 0;
+    let bpmValue = 120;
+    const lookAheadMs = 25;
+    const scheduleAheadSec = 0.12;
+
+    function sanitizeSequence(value) {
+        return (value || '').toUpperCase().replace(/[^0-9A-F]/g, '').slice(0, 16);
+    }
+
+    function getSequence() {
+        return sanitizeSequence(sequenceInput.value);
+    }
+
+    function updateSequenceLengthDisplay() {
+        const length = getSequence().length;
+        sequenceLengthInput.value = `${length}/16`;
+    }
+
+    function sanitizeBpm(value) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return 120;
+        return Math.max(40, Math.min(260, Math.round(n)));
+    }
+
+    function getBpm() {
+        return sanitizeBpm(bpmValue);
+    }
+
+    function sixteenthSeconds() {
+        return 60 / getBpm() / 4;
+    }
+
+    function updateQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        params.set('bpm', String(getBpm()));
+        params.set('seq', getSequence());
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, '', newUrl);
+    }
+
+    function loadQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.has('bpm')) {
+            bpmValue = sanitizeBpm(params.get('bpm'));
+        }
+
+        if (params.has('seq')) {
+            sequenceInput.value = sanitizeSequence(params.get('seq') || '');
+        }
+    }
+
+    async function ensureAudioReady() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
+        }
+        if (!sampleBuffers) {
+            sampleBuffers = {};
+            const entries = Object.entries(sampleFiles);
+            await Promise.all(entries.map(async ([name, file]) => {
+                const response = await fetch(file);
+                if (!response.ok) throw new Error(`Could not load ${file}`);
+                const arr = await response.arrayBuffer();
+                sampleBuffers[name] = await audioCtx.decodeAudioData(arr);
+            }));
+        }
+    }
+
+    function triggerSample(name, when) {
+        const buffer = sampleBuffers?.[name];
+        if (!buffer || !audioCtx) return;
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        src.connect(audioCtx.destination);
+        src.start(when);
+    }
+
+    function scheduleStep(stepChar, when) {
+        if (!stepChar) return;
+        const nibble = parseInt(stepChar, 16);
+        if (Number.isNaN(nibble)) return;
+
+        if (nibble & 0b1000) triggerSample('kick', when);
+        if (nibble & 0b0100) triggerSample('snare', when);
+        if (nibble & 0b0010) triggerSample('hihat', when);
+        if (nibble & 0b0001) triggerSample('openhat', when);
+    }
+
+    async function playStepPreview(stepIndex, when) {
+        const seq = getSequence();
+        const stepChar = seq[stepIndex];
+        if (!stepChar) return false;
+        await ensureAudioReady();
+        const playAt = when ?? (audioCtx.currentTime + 0.001);
+        scheduleStep(stepChar, playAt);
+        return true;
+    }
+
+    function stopHeldPreview() {
+        heldStepIndex = null;
+        heldNextWhen = 0;
+        if (heldRepeatTimer !== null) {
+            window.clearTimeout(heldRepeatTimer);
+            heldRepeatTimer = null;
+        }
+    }
+
+    function getNextHeldGridTime() {
+        const minTime = audioCtx.currentTime + 0.001;
+        const step = sixteenthSeconds();
+
+        if (!isPlaying || !(nextStepTime > 0)) {
+            return minTime;
+        }
+
+        let t = nextStepTime;
+        while (t - step > minTime) {
+            t -= step;
+        }
+        return Math.max(t, minTime);
+    }
+
+    function scheduleHeldPreviewTick() {
+        if (heldStepIndex === null) return;
+        if (!audioCtx) return;
+
+        const delayMs = Math.max(0, (heldNextWhen - audioCtx.currentTime) * 1000);
+        heldRepeatTimer = window.setTimeout(async () => {
+            if (heldStepIndex === null) return;
+            let scheduledWhen = 0;
+            try {
+                scheduledWhen = Math.max(heldNextWhen, audioCtx.currentTime + 0.001);
+                const played = await playStepPreview(heldStepIndex, scheduledWhen);
+                if (!played) {
+                    stopHeldPreview();
+                    return;
+                }
+            } catch (err) {
+                console.error(err);
+                stopHeldPreview();
+                return;
+            }
+            heldNextWhen = scheduledWhen + sixteenthSeconds();
+            scheduleHeldPreviewTick();
+        }, delayMs);
+    }
+
+    async function startHeldPreview(stepIndex) {
+        stopHeldPreview();
+        heldStepIndex = stepIndex;
+        try {
+            await ensureAudioReady();
+            if (heldStepIndex !== stepIndex) {
+                return;
+            }
+
+            const seq = getSequence();
+            if (!seq[stepIndex]) {
+                stopHeldPreview();
+                return;
+            }
+
+            heldNextWhen = getNextHeldGridTime();
+            scheduleHeldPreviewTick();
+        } catch (err) {
+            console.error(err);
+            stopHeldPreview();
+        }
+    }
+
+    function drawGrid(activeIndex = -1) {
+        const seq = getSequence();
+        stepGrid.innerHTML = '';
+
+        const spacer = document.createElement('div');
+        spacer.className = 'step-spacer';
+        spacer.setAttribute('aria-hidden', 'true');
+        stepGrid.appendChild(spacer);
+
+        for (let i = 0; i < 16; i++) {
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'step';
+            cell.textContent = seq[i] || '·';
+            const isInitialized = i < seq.length;
+            cell.disabled = !isInitialized;
+            if (isInitialized && i % 4 === 0) {
+                cell.classList.add('downbeat');
+            }
+            cell.title = seq[i] ? `Play step ${i + 1}` : `Step ${i + 1} is empty`;
+            cell.addEventListener('pointerdown', (event) => {
+                event.preventDefault();
+                startHeldPreview(i);
+            });
+            cell.addEventListener('pointerup', stopHeldPreview);
+            cell.addEventListener('pointercancel', stopHeldPreview);
+            cell.addEventListener('pointerleave', stopHeldPreview);
+            cell.addEventListener('blur', stopHeldPreview);
+            cell.addEventListener('keydown', (event) => {
+                if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) {
+                    event.preventDefault();
+                    startHeldPreview(i);
+                }
+            });
+            cell.addEventListener('keyup', (event) => {
+                if (event.key === ' ' || event.key === 'Enter') {
+                    event.preventDefault();
+                    stopHeldPreview();
+                }
+            });
+            if (i === activeIndex && i < seq.length) {
+                cell.classList.add('active');
+            }
+            stepGrid.appendChild(cell);
+        }
+
+        sampleState.innerHTML = '';
+        for (const row of instrumentRows) {
+            const rowEl = document.createElement('div');
+            rowEl.className = 'sample-row';
+
+            const labelEl = document.createElement('div');
+            labelEl.className = 'sample-label';
+            labelEl.textContent = row.label;
+            rowEl.appendChild(labelEl);
+
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'sample-cell';
+                if (i >= seq.length) {
+                    cell.textContent = '·';
+                    rowEl.appendChild(cell);
+                    continue;
+                }
+                if (i % 4 === 0) {
+                    cell.classList.add('downbeat');
+                }
+                const nibble = parseInt(seq[i] || '0', 16);
+                if (!Number.isNaN(nibble) && (nibble & row.bit)) {
+                    cell.classList.add('on');
+                    cell.textContent = '1';
+                } else {
+                    cell.textContent = '0';
+                }
+                if (i === activeIndex && i < seq.length) {
+                    cell.classList.add('active');
+                }
+                rowEl.appendChild(cell);
+            }
+
+            sampleState.appendChild(rowEl);
+        }
+    }
+
+    function scheduler() {
+        if (!audioCtx) return;
+        const seq = getSequence();
+        if (!seq.length) {
+            currentStep = 0;
+            drawGrid(-1);
+            nextStepTime = Math.max(nextStepTime, audioCtx.currentTime + sixteenthSeconds());
+            return;
+        }
+
+        while (nextStepTime < audioCtx.currentTime + scheduleAheadSec) {
+            const safeStep = currentStep % seq.length;
+            scheduleStep(seq[safeStep], nextStepTime);
+            drawGrid(safeStep);
+            currentStep = (safeStep + 1) % seq.length;
+            nextStepTime += sixteenthSeconds();
+        }
+    }
+
+    function setPlayingUI(playing) {
+        playPauseBtn.textContent = playing ? 'STOP' : 'PLAY';
+        playPauseBtn.classList.toggle('playing', playing);
+        playPauseBtn.setAttribute('aria-pressed', String(playing));
+    }
+
+    async function togglePlayback() {
+        try {
+            if (isPlaying) {
+                stopPlayback();
+            } else {
+                await startPlayback();
+            }
+        } catch (err) {
+            console.error(err);
+            stopPlayback();
+        }
+    }
+
+    async function startPlayback() {
+        await ensureAudioReady();
+        if (isPlaying) return;
+        isPlaying = true;
+        setPlayingUI(true);
+        currentStep = 0;
+        nextStepTime = audioCtx.currentTime + 0.02;
+        schedulerId = window.setInterval(scheduler, lookAheadMs);
+        scheduler();
+    }
+
+    function stopPlayback() {
+        isPlaying = false;
+        setPlayingUI(false);
+        if (schedulerId !== null) {
+            window.clearInterval(schedulerId);
+            schedulerId = null;
+        }
+        drawGrid(-1);
+    }
+
+    function handleSequenceInput() {
+        const sanitized = sanitizeSequence(sequenceInput.value);
+        if (sequenceInput.value !== sanitized) {
+            sequenceInput.value = sanitized;
+        }
+        updateSequenceLengthDisplay();
+        if (currentStep >= sanitized.length) {
+            currentStep = 0;
+        }
+        drawGrid(isPlaying && sanitized.length ? currentStep % sanitized.length : -1);
+        updateQueryParams();
+    }
+
+    function randomHexSequence() {
+        const digits = '0123456789ABCDEF';
+        const length = 4 + Math.floor(Math.random() * 13); // 4..16
+        let out = '';
+        for (let i = 0; i < length; i++) {
+            out += digits[Math.floor(Math.random() * digits.length)];
+        }
+        return out;
+    }
+
+    sequenceInput.addEventListener('beforeinput', (event) => {
+        if (event.inputType.startsWith('delete')) return;
+        if (event.inputType === 'insertFromPaste') return;
+        if (event.data == null) return;
+        if (!/^[0-9a-fA-F]+$/.test(event.data)) {
+            event.preventDefault();
+            return;
+        }
+        const selectionLength = sequenceInput.selectionEnd - sequenceInput.selectionStart;
+        const nextLength = sequenceInput.value.length - selectionLength + event.data.length;
+        if (nextLength > 16) {
+            event.preventDefault();
+        }
+    });
+
+    sequenceInput.addEventListener('paste', (event) => {
+        event.preventDefault();
+        const pasted = event.clipboardData?.getData('text') || '';
+        const cleaned = sanitizeSequence(pasted);
+        const start = sequenceInput.selectionStart;
+        const end = sequenceInput.selectionEnd;
+        const head = sequenceInput.value.slice(0, start);
+        const tail = sequenceInput.value.slice(end);
+        sequenceInput.value = sanitizeSequence((head + cleaned + tail).slice(0, 16));
+        handleSequenceInput();
+    });
+
+    sequenceInput.addEventListener('input', handleSequenceInput);
+    sequenceInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            togglePlayback();
+        }
+    });
+
+    shuffleBtn.addEventListener('click', () => {
+        sequenceInput.value = randomHexSequence();
+        handleSequenceInput();
+    });
+
+    window.addEventListener('pointerup', stopHeldPreview);
+    window.addEventListener('pointercancel', stopHeldPreview);
+
+    playPauseBtn.addEventListener('click', togglePlayback);
+
+    loadQueryParams();
+    handleSequenceInput();
+})();
+</script>
+</body>
+</html>
