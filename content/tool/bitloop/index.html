@@ -101,6 +101,75 @@ date = "2026-02-22"
         color: #ffffff;
     }
 
+    .rand-split {
+        position: relative;
+        display: inline-flex;
+        align-items: stretch;
+    }
+
+    #shuffle {
+        border-right: none;
+    }
+
+    #randMenuToggle {
+        cursor: pointer;
+        width: 34px;
+        min-width: 34px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+
+    #randMenuToggle:hover,
+    #randMenuToggle.active {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    #randMenu {
+        position: absolute;
+        top: calc(100% + 2px);
+        right: 0;
+        display: none;
+        min-width: 80px;
+        background: #ffffff;
+        border: 1px solid #111111;
+        z-index: 10;
+    }
+
+    #randMenu.open {
+        display: block;
+    }
+
+    .rand-option {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #cfcfcf;
+        background: #ffffff;
+        text-align: left;
+        padding: 7px 10px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.9rem;
+    }
+
+    .rand-option:last-child {
+        border-bottom: none;
+    }
+
+    .rand-option:hover {
+        background: #111111;
+        color: #ffffff;
+    }
+
+    .rand-option.active {
+        background: #efefef;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
     #sequence {
         text-transform: uppercase;
         font-family: inherit;
@@ -237,7 +306,17 @@ date = "2026-02-22"
                 <div class="sequence-input-wrap">
                     <input id="sequenceLength" type="text" value="16/16" readonly aria-label="Sequence length" title="Current sequence length" />
                     <input id="sequence" type="text" maxlength="16" spellcheck="false" placeholder="e.g. 8A248A24" />
-                    <button id="shuffle" type="button" title="Randomize sequence">RAND</button>
+                    <div class="rand-split">
+                        <button id="shuffle" type="button" title="Randomize sequence">RAND</button>
+                        <button id="randMenuToggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Choose RAND length" title="Choose RAND length">▼</button>
+                        <div id="randMenu" role="menu" aria-label="RAND length options">
+                            <button class="rand-option active" type="button" role="menuitemradio" aria-checked="true" data-length="?">?</button>
+                            <button class="rand-option" type="button" role="menuitemradio" aria-checked="false" data-length="6">6</button>
+                            <button class="rand-option" type="button" role="menuitemradio" aria-checked="false" data-length="8">8</button>
+                            <button class="rand-option" type="button" role="menuitemradio" aria-checked="false" data-length="12">12</button>
+                            <button class="rand-option" type="button" role="menuitemradio" aria-checked="false" data-length="16">16</button>
+                        </div>
+                    </div>
                     <button id="playPause" type="button" aria-pressed="false">PLAY</button>
                 </div>
             </div>
@@ -267,6 +346,9 @@ date = "2026-02-22"
     const sequenceLengthInput = document.getElementById('sequenceLength');
     const sequenceInput = document.getElementById('sequence');
     const shuffleBtn = document.getElementById('shuffle');
+    const randMenuToggle = document.getElementById('randMenuToggle');
+    const randMenu = document.getElementById('randMenu');
+    const randOptions = Array.from(document.querySelectorAll('.rand-option'));
     const playPauseBtn = document.getElementById('playPause');
     const stepGrid = document.getElementById('stepGrid');
     const sampleState = document.getElementById('sampleState');
@@ -296,6 +378,7 @@ date = "2026-02-22"
     let heldRepeatTimer = null;
     let heldNextWhen = 0;
     let bpmValue = 120;
+    let randLengthMode = '?';
     const lookAheadMs = 25;
     const scheduleAheadSec = 0.12;
 
@@ -628,12 +711,33 @@ date = "2026-02-22"
 
     function randomHexSequence() {
         const digits = '0123456789ABCDEF';
-        const length = 4 + Math.floor(Math.random() * 13); // 4..16
+        const length = randLengthMode === '?' ? (4 + Math.floor(Math.random() * 13)) : Number(randLengthMode);
         let out = '';
         for (let i = 0; i < length; i++) {
             out += digits[Math.floor(Math.random() * digits.length)];
         }
         return out;
+    }
+
+    function setRandLengthMode(mode) {
+        randLengthMode = mode;
+        for (const option of randOptions) {
+            const active = option.dataset.length === mode;
+            option.classList.toggle('active', active);
+            option.setAttribute('aria-checked', String(active));
+        }
+    }
+
+    function closeRandMenu() {
+        randMenu.classList.remove('open');
+        randMenuToggle.classList.remove('active');
+        randMenuToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleRandMenu() {
+        const open = randMenu.classList.toggle('open');
+        randMenuToggle.classList.toggle('active', open);
+        randMenuToggle.setAttribute('aria-expanded', String(open));
     }
 
     function rotateSequence(direction) {
@@ -702,12 +806,36 @@ date = "2026-02-22"
         handleSequenceInput();
     });
 
+    randMenuToggle.addEventListener('click', () => {
+        toggleRandMenu();
+    });
+
+    randOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+            setRandLengthMode(option.dataset.length || '?');
+            closeRandMenu();
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!randMenu.contains(event.target) && event.target !== randMenuToggle) {
+            closeRandMenu();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeRandMenu();
+        }
+    });
+
     window.addEventListener('pointerup', stopHeldPreview);
     window.addEventListener('pointercancel', stopHeldPreview);
 
     playPauseBtn.addEventListener('click', togglePlayback);
 
     loadQueryParams();
+    setRandLengthMode('?');
     handleSequenceInput();
 })();
 </script>
