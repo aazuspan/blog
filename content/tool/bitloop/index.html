@@ -11,6 +11,7 @@ date = "2026-02-22"
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>bitloop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
     .tool-container {
         --label-col-width: 64px;
@@ -286,6 +287,7 @@ date = "2026-02-22"
 
     let audioCtx = null;
     let sampleBuffers = null;
+    let masterGain = null;
     let isPlaying = false;
     let schedulerId = null;
     let nextStepTime = 0;
@@ -347,6 +349,9 @@ date = "2026-02-22"
     async function ensureAudioReady() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.5;
+            masterGain.connect(audioCtx.destination);
         }
         if (audioCtx.state === 'suspended') {
             await audioCtx.resume();
@@ -365,10 +370,10 @@ date = "2026-02-22"
 
     function triggerSample(name, when) {
         const buffer = sampleBuffers?.[name];
-        if (!buffer || !audioCtx) return;
+        if (!buffer || !audioCtx || !masterGain) return;
         const src = audioCtx.createBufferSource();
         src.buffer = buffer;
-        src.connect(audioCtx.destination);
+        src.connect(masterGain);
         src.start(when);
     }
 
@@ -631,6 +636,19 @@ date = "2026-02-22"
         return out;
     }
 
+    function rotateSequence(direction) {
+        const seq = getSequence();
+        if (seq.length <= 1) return;
+
+        if (direction === 'left') {
+            sequenceInput.value = seq.slice(1) + seq[0];
+        } else {
+            sequenceInput.value = seq[seq.length - 1] + seq.slice(0, -1);
+        }
+
+        handleSequenceInput();
+    }
+
     sequenceInput.addEventListener('beforeinput', (event) => {
         if (event.inputType.startsWith('delete')) return;
         if (event.inputType === 'insertFromPaste') return;
@@ -660,6 +678,19 @@ date = "2026-02-22"
 
     sequenceInput.addEventListener('input', handleSequenceInput);
     sequenceInput.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                rotateSequence('left');
+                return;
+            }
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                rotateSequence('right');
+                return;
+            }
+        }
+
         if (event.key === 'Enter') {
             event.preventDefault();
             togglePlayback();
