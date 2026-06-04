@@ -59,6 +59,12 @@ ignoreErrors = ["error-disable-taxonomy"]
     name = "Aaron Zuspan"
     email = "aa.zuspan@gmail.com"
 
+# Allow raw `text/html` content files (e.g. the standalone tool pages under
+# content/tool/). Recent Hugo versions deny these by default via
+# `security.allowContent = ['! ^text/html$']`.
+[security]
+  allowContent = ['.*']
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
