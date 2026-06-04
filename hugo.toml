@@ -7,7 +7,7 @@ theme = ['hugo-video', 'hugo-bearblog']
 # Basic metadata configuration for your blog.
 title = "Signals & Pixels"
 copyright = "Copyright © 2024, Aaron Zuspan."
-languageCode = "en-US"
+local = "en-US"
 author = "Aaron Zuspan"
 
 # Generate a nice robots.txt for SEO
