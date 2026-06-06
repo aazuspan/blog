@@ -1,6 +1,6 @@
 +++
 title = "Guitars, Microchips, and Assembly"
-tags = ["audio", "fv1", "hardware"]
+tags = ["audio", "fv1", "hardware", "music"]
 date = "2023-03-18"
 description = "Witness the descent of a Python programmer into the depths of low-level digital signal processing and embedded assembly."
 aliases = ["/blog/fv1"]

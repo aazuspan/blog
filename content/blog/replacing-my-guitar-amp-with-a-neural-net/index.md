@@ -1,6 +1,6 @@
 +++
 title = "Replacing My Guitar Amp with a Neural Net"
-tags = ["audio", "hardware", "deep-learning", "neural-amp-modeler"]
+tags = ["audio", "hardware", "deep-learning", "neural-amp-modeler", "music"]
 description = "Training a WaveNet CNN to simulate a vintage tube amp with Neural Amp Modeler."
 date = "2024-10-28"
 +++

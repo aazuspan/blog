@@ -1,6 +1,6 @@
 +++
 title = "Building Arpeggio Pt. 4: The Parser & Interpreter"
-tags = ["python", "audio", "arpeggio", "programming-languages"]
+tags = ["python", "audio", "arpeggio", "programming-languages", "music"]
 description = "Turning code into notes."
 date = "2025-01-26"
 +++
