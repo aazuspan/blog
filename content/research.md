@@ -7,6 +7,8 @@ menu = "main"
 
 ## Papers
 
+- [Biogeographic patterns of post-fire resilience and vulnerability to conifer loss in forests of California, Oregon, and Washington (U.S.A.)](https://doi.org/10.1016/j.foreco.2026.124106), Reilly et al., Forest Ecology and Management, 2026.
+
 - [Post-fire delayed tree mortality in mesic coniferous forests reduces fire refugia and seed sources](https://link.springer.com/article/10.1007/s10980-025-02111-2), Dyer et al., Landscape Ecology, 2025.
 
 - [Long-term patterns of post-fire harvest diverge among ownerships in the Pacific West, U.S.A.](https://iopscience.iop.org/article/10.1088/1748-9326/ad8e75), Zuspan et al., Environmental Research Letters, 2024.
