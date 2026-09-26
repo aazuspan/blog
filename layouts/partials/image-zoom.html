@@ -1,0 +1,130 @@
+{{- /*
+  Click a figure image to view it full-screen in a modal. Scroll or pinch to zoom,
+  drag to pan. Click without dragging or press Escape to close. Images that are
+  already wrapped in a link are left alone.
+*/ -}}
+<dialog id="image-zoom" aria-label="Zoomed image">
+  <img alt="" draggable="false">
+</dialog>
+<script>
+  (() => {
+    const dialog = document.getElementById("image-zoom");
+    const zoomed = dialog.querySelector("img");
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 8;
+
+    let scale = 1, tx = 0, ty = 0;
+    let moved = false;
+    const pointers = new Map();
+    let lastPinch = null;
+
+    const apply = () => {
+      zoomed.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    };
+
+    const reset = () => {
+      scale = 1; tx = 0; ty = 0;
+      apply();
+    };
+
+    // Zoom by `factor` while keeping the client point (cx, cy) fixed on screen.
+    const zoomAt = (factor, cx, cy) => {
+      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+      if (next === MIN_SCALE) return reset();
+      const rect = zoomed.getBoundingClientRect();
+      const baseLeft = rect.left - tx;
+      const baseTop = rect.top - ty;
+      const lx = (cx - baseLeft - tx) / scale;
+      const ly = (cy - baseTop - ty) / scale;
+      scale = next;
+      tx = cx - baseLeft - lx * scale;
+      ty = cy - baseTop - ly * scale;
+      apply();
+    };
+
+    const pinchState = () => {
+      const [a, b] = [...pointers.values()];
+      return {
+        dist: Math.hypot(a.x - b.x, a.y - b.y),
+        x: (a.x + b.x) / 2,
+        y: (a.y + b.y) / 2,
+      };
+    };
+
+    document.querySelectorAll("main figure img").forEach((img) => {
+      if (img.closest("a")) return;
+      img.classList.add("zoomable");
+      img.tabIndex = 0;
+      const open = () => {
+        zoomed.src = img.currentSrc || img.src;
+        zoomed.alt = img.alt;
+        reset();
+        dialog.showModal();
+      };
+      img.addEventListener("click", open);
+      img.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          open();
+        }
+      });
+    });
+
+    // Trackpad pinches arrive as wheel events with ctrlKey set, so they need a
+    // stronger factor than mouse wheel scrolling.
+    dialog.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const speed = e.ctrlKey ? 0.01 : 0.002;
+      zoomAt(Math.exp(-e.deltaY * speed), e.clientX, e.clientY);
+    }, { passive: false });
+
+    dialog.addEventListener("pointerdown", (e) => {
+      if (pointers.size === 0) moved = false;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      dialog.setPointerCapture(e.pointerId);
+      if (pointers.size === 2) lastPinch = pinchState();
+    });
+
+    dialog.addEventListener("pointermove", (e) => {
+      const prev = pointers.get(e.pointerId);
+      if (!prev) return;
+      const dx = e.clientX - prev.x;
+      const dy = e.clientY - prev.y;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (pointers.size === 2) {
+        const pinch = pinchState();
+        zoomAt(pinch.dist / lastPinch.dist, pinch.x, pinch.y);
+        if (scale > 1) {
+          tx += pinch.x - lastPinch.x;
+          ty += pinch.y - lastPinch.y;
+          apply();
+        }
+        lastPinch = pinch;
+        moved = true;
+      } else if (pointers.size === 1 && scale > 1) {
+        tx += dx;
+        ty += dy;
+        apply();
+      }
+      if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+    });
+
+    const release = (e) => {
+      pointers.delete(e.pointerId);
+      lastPinch = pointers.size === 2 ? pinchState() : null;
+    };
+    dialog.addEventListener("pointerup", release);
+    dialog.addEventListener("pointercancel", release);
+
+    // Close on a plain click, but not at the end of a drag or pinch.
+    dialog.addEventListener("click", () => {
+      if (!moved) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      zoomed.removeAttribute("src");
+      pointers.clear();
+      reset();
+    });
+  })();
+</script>

@@ -151,6 +151,43 @@
         font-style: italic;
     }
 
+    /* figure image zoom */
+    img.zoomable {
+        cursor: zoom-in;
+    }
+
+    #image-zoom {
+        max-width: 100vw;
+        max-height: 100vh;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: zoom-out;
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    #image-zoom[open] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #image-zoom::backdrop {
+        background-color: rgba(0, 0, 0, 0.85);
+    }
+
+    #image-zoom img {
+        max-width: 95vw;
+        max-height: 95vh;
+        object-fit: contain;
+        transform-origin: 0 0;
+        user-select: none;
+    }
+
     small {
         font-size: 15px;
     }
