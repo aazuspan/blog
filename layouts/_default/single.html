@@ -12,7 +12,7 @@
 </p>
 {{ end }}{{ end }}
 <content>
-    {{ .Content }}
+    {{ partial "inline-footnotes.html" .Content }}
 </content>
 {{ range (.GetTerms "tags") }}
 <a href="{{ .Permalink }}">#{{ .LinkTitle }}</a>

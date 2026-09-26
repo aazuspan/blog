@@ -1,0 +1,20 @@
+{{- /*
+  Rewrite Goldmark footnotes into collapsible inline notes. Each reference becomes a
+  label that toggles a hidden checkbox, revealing the note text in place (pure CSS).
+  The endnote list at the bottom of the page is removed.
+*/ -}}
+{{- $content := string . -}}
+{{- range findRESubmatch `(?s)<li id="fn:([^"]+)">\s*(.*?)</li>` $content -}}
+  {{- $id := index . 1 -}}
+  {{- $body := index . 2
+    | replaceRE `\s*<a href="#fnref[^"]*"[^>]*>.*?</a>` ""
+    | replaceRE `</p>\s*<p>` "<br><br>"
+    | replaceRE `</?p>` ""
+    | replaceRE `(&#160;|\s)+$` ""
+    | strings.TrimSpace -}}
+  {{- $note := printf `<input type="checkbox" id="fn-toggle-$1" class="footnote-toggle"><label for="fn-toggle-$1" class="footnote-ref" title="Show footnote">$2</label><span class="footnote-inline" role="note">%s</span>` (replace $body "$" "$$") -}}
+  {{- $ref := printf `<sup id="(fnref\d*:%s)"><a href="#fn:%s"[^>]*>([^<]*)</a></sup>` (strings.Replace $id "." `\.`) (strings.Replace $id "." `\.`) -}}
+  {{- $content = replaceRE $ref $note $content -}}
+{{- end -}}
+{{- $content = replaceRE `(?s)<div class="footnotes" role="doc-endnotes">.*?</div>` "" $content -}}
+{{- return ($content | safeHTML) -}}

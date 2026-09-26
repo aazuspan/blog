@@ -162,4 +162,50 @@
         border-radius: 5px;
         width: 50%;
     }
+
+    /* collapsible inline footnotes */
+    .footnote-toggle {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .footnote-ref {
+        color: #3273dc;
+        cursor: pointer;
+        font-size: 0.75em;
+        vertical-align: super;
+        line-height: 0;
+        user-select: none;
+    }
+
+    .footnote-ref::before {
+        content: "[";
+    }
+
+    .footnote-ref::after {
+        content: "]";
+    }
+
+    .footnote-ref:hover {
+        opacity: 0.7;
+    }
+
+    .footnote-toggle:focus-visible + .footnote-ref {
+        outline: 2px solid #3273dc;
+        outline-offset: 2px;
+    }
+
+    .footnote-inline {
+        display: none;
+        margin: 0.5em 0;
+        padding: 6px 12px;
+        border-left: 2px solid #3273dc;
+        background-color: #f5f5f5;
+        font-size: 15px;
+    }
+
+    .footnote-toggle:checked + .footnote-ref + .footnote-inline {
+        display: block;
+    }
 </style>
