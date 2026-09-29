@@ -7,6 +7,8 @@ menu = "main"
 
 ## Papers
 
+- [A spatial database of historical fire in Westside forests of the Pacific Northwest](https://doi.org/10.3955/046.099.0204), Zuspan et al., Northwest Science, 2026.
+
 - [Biogeographic patterns of post-fire resilience and vulnerability to conifer loss in forests of California, Oregon, and Washington (U.S.A.)](https://doi.org/10.1016/j.foreco.2026.124106), Reilly et al., Forest Ecology and Management, 2026.
 
 - [Post-fire delayed tree mortality in mesic coniferous forests reduces fire refugia and seed sources](https://link.springer.com/article/10.1007/s10980-025-02111-2), Dyer et al., Landscape Ecology, 2025.
